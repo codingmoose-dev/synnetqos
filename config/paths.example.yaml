@@ -1,0 +1,16 @@
+synthetic_dataset: "data/synthetic/synnetqos-dataset.csv"
+
+vienna:
+  phone_lte: "data/raw_external/vienna/phone/phone_data_lte.parquet"
+  phone_5g: "data/raw_external/vienna/phone/phone_data_5g.parquet"
+
+campus_qos:
+  ntnu_throughput: "data/raw_external/campus_qos/ntnu_tput_all_Throughput.csv"
+  wue_throughput: "data/raw_external/campus_qos/wue_tput_all_Throughput.csv"
+
+results:
+  generator: "results/generator"
+  external_validation: "results/external_validation"
+  ml_benchmark: "results/ml_benchmark"
+  paper_figures: "figures/paper"
+  supplementary_figures: "figures/supplementary"

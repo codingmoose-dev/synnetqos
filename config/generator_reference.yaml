@@ -1,0 +1,19 @@
+seed: 42
+num_sessions: 5000
+session_length: 10
+start_date: "2025-07-26"
+activity_factor: 0.10
+
+naming:
+  area_column: "Deployment_Area"
+  latitude_column: "Synthetic_Latitude"
+  longitude_column: "Synthetic_Longitude"
+  operator_column: "Operator_Profile"
+  ue_column: "UE_Profile"
+  ue_class_column: "UE_Capability_Class"
+
+outputs:
+  dataset: "data/synthetic/synnetqos-dataset.csv"
+  integrity_summary: "results/generator/dataset_integrity_summary.csv"
+  schema: "results/generator/dataset_schema.csv"
+  config_export: "results/generator/generator_config.json"
