@@ -1,8 +1,6 @@
 from __future__ import annotations
-
 from dataclasses import dataclass
 from datetime import datetime
-
 
 @dataclass(frozen=True)
 class GeneratorConfig:
@@ -11,6 +9,7 @@ class GeneratorConfig:
     session_length: int = 10
     start_date: datetime = datetime(2025, 7, 26)
     activity_factor: float = 0.10
+    activity_factor_std: float = 0.025
 
     pl0_db: float = 61.4
     d0_km: float = 0.01
@@ -27,3 +26,7 @@ class GeneratorConfig:
     tower_distance_max_km: float = 2.0
 
     jitter_latency_divisor: float = 450.0
+    demand_sigma: float = 0.9
+
+# Default instance to be imported across modules
+DEFAULT_CONFIG = GeneratorConfig()

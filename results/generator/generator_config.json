@@ -1,0 +1,22 @@
+{
+    "seed": 42,
+    "num_sessions": 5000,
+    "session_length": 10,
+    "start_date": "2025-07-26 00:00:00",
+    "activity_factor": 0.1,
+    "activity_factor_std": 0.025,
+    "pl0_db": 61.4,
+    "d0_km": 0.01,
+    "path_loss_exponent": 3.3,
+    "rsrp_min_dbm": -135.0,
+    "rsrp_max_dbm": -50.0,
+    "indoor_probability": 0.35,
+    "indoor_penalty_db": 10.0,
+    "indoor_high_obstruction_probability": 0.45,
+    "tower_distance_gamma_shape": 2.0,
+    "tower_distance_gamma_scale": 0.35,
+    "tower_distance_max_km": 2.0,
+    "jitter_latency_divisor": 450.0,
+    "demand_sigma": 0.9,
+    "dataset_sha256": "94b66fa193868d489a3e5e85316dfa1cdec0dd37aa9de3a8598a55715c022d00"
+}

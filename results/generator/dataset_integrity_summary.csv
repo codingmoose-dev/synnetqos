@@ -1,0 +1,4 @@
+Metric,Value
+Expected_Rows,50000.0
+Generated_Rows,50000.0
+Monotonic_Timestamps_Percent,100.0

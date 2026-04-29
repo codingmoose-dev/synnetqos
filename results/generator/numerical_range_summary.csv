@@ -1,0 +1,14 @@
+Feature,min,mean,max
+Signal_Strength_dBm,-135.0,-90.73,-50.0
+Link_Capacity_Downlink_Mbps,0.0,162.5,1055.04
+Offered_Downlink_Mbps,0.18,189.49,11462.69
+Download_Speed_Mbps,0.0,65.73,1078.8
+Link_Capacity_Upload_Mbps,0.0,48.63,369.26
+Offered_Upload_Mbps,0.01,15.3,1128.66
+Upload_Speed_Mbps,0.0,7.42,327.75
+Latency_ms,5.0,244.84,1000.0
+Jitter_ms,0.02,0.86,8.18
+Battery_Level_percent,77.53,89.23,99.93
+Interval_Handover_Count,0.0,0.59,11.0
+Cumulative_Handover_Count,0.0,2.9,42.0
+Distance_to_Tower_km,0.05,0.7,4.05
