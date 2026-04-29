@@ -20,7 +20,7 @@ def numerical_range_summary(df: pd.DataFrame) -> pd.DataFrame:
     ]
     
     valid_cols = [col for col in range_cols if col in df.columns]
-    # Computes min, mean, max and returns a transposed dataframe for readable CSV structure
+    # Computes min, mean, max and returns a transposed dataframe
     summary = df[valid_cols].agg(["min", "mean", "max"]).round(2).T.reset_index()
     summary.rename(columns={"index": "Feature"}, inplace=True)
     return summary

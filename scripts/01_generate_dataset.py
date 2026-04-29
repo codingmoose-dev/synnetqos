@@ -32,11 +32,11 @@ def main() -> None:
     write_csv(numerical_range_summary(df), "results/generator/numerical_range_summary.csv")
     write_csv(outlier_report(df, analysis_features), "results/generator/outlier_report.csv")
     
-    # Calculate dataset cryptographic hash for academic provenance
+    # Calculate dataset cryptographic hash
     dataset_hash = sha256_of_file(data_path)
     print(f"Dataset SHA-256 Hash: {dataset_hash}")
     
-    # Save the exact configuration + hash for perfect reproducibility
+    # Save the exact configuration + hash for reproducibility
     config_dict = config.__dict__.copy()
     config_dict["start_date"] = str(config.start_date)
     config_dict["dataset_sha256"] = dataset_hash

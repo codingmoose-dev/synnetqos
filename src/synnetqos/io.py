@@ -32,7 +32,6 @@ def write_csv(df: pd.DataFrame, path: str | Path) -> None:
     df.to_csv(path, index=False)
 
 def save_plot(fig: plt.Figure, path: str | Path, dpi: int = 300) -> None:
-    # Pure I/O function for saving figures and freeing memory.
     path = Path(path)
     ensure_dir(path.parent)
     fig.savefig(path, format=path.suffix.lstrip("."), dpi=dpi, bbox_inches="tight",)
