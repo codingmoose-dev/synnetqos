@@ -1,19 +1,292 @@
-seed: 42
-num_sessions: 5000
-session_length: 10
-start_date: "2025-07-26"
-activity_factor: 0.10
+# Reference generator configuration for SynNetQoS.
+# This file documents the fixed public generator settings.
+# Runtime values are currently defined in src/synnetqos/config.py and src/synnetqos/profiles.py.
 
-naming:
-  area_column: "Deployment_Area"
-  latitude_column: "Synthetic_Latitude"
-  longitude_column: "Synthetic_Longitude"
-  operator_column: "Operator_Profile"
-  ue_column: "UE_Profile"
-  ue_class_column: "UE_Capability_Class"
+generator:
+  seed: 42
+  num_sessions: 5000
+  session_length: 10
+  start_date: "2025-07-26"
+
+activity:
+  activity_factor: 0.10
+  activity_factor_std: 0.025
+
+path_loss:
+  pl0_db: 61.4
+  d0_km: 0.01
+  path_loss_exponent: 3.3
+  rsrp_min_dbm: -135.0
+  rsrp_max_dbm: -50.0
+
+environment:
+  indoor_probability: 0.35
+  indoor_penalty_db: 10.0
+  indoor_high_obstruction_probability: 0.45
+  tower_distance_gamma_shape: 2.0
+  tower_distance_gamma_scale: 0.35
+  tower_distance_max_km: 2.0
+
+traffic:
+  jitter_latency_divisor: 450.0
+  demand_sigma: 0.9
+  uplink_capacity_ratio:
+    "4G": 0.15
+    "5G NSA": 0.25
+    "5G SA": 0.35
+
+scenario_levels:
+  network_types:
+    - "4G"
+    - "5G NSA"
+    - "5G SA"
+  weather_types:
+    - "Clear"
+    - "Rainy"
+    - "Foggy"
+  obstruction_levels:
+    - "Low"
+    - "Medium"
+    - "High"
+  movement_speeds:
+    - "Static"
+    - "Walking"
+    - "Driving"
+  app_types:
+    - "Streaming"
+    - "Browse"
+    - "Gaming"
+    - "Call"
+  tower_load_levels:
+    - "Light"
+    - "Moderate"
+    - "Heavy"
+
+deployment_areas:
+  Area_A:
+    center_latitude: 19.0760
+    center_longitude: 72.8777
+    area_type: "Urban"
+  Area_B:
+    center_latitude: 28.6139
+    center_longitude: 77.2090
+    area_type: "Urban"
+  Area_C:
+    center_latitude: 40.7128
+    center_longitude: -74.0060
+    area_type: "Urban"
+  Area_D:
+    center_latitude: 35.6895
+    center_longitude: 139.6917
+    area_type: "Urban"
+  Area_E:
+    center_latitude: 52.5200
+    center_longitude: 13.4050
+    area_type: "Urban"
+  Area_F:
+    center_latitude: 37.7749
+    center_longitude: -122.4194
+    area_type: "Urban"
+
+operator_availability:
+  Area_A:
+    - "Operator_A"
+    - "Operator_B"
+    - "Operator_C"
+  Area_B:
+    - "Operator_A"
+    - "Operator_B"
+    - "Operator_D"
+  Area_C:
+    - "Operator_E"
+    - "Operator_F"
+    - "Operator_G"
+  Area_D:
+    - "Operator_H"
+    - "Operator_I"
+    - "Operator_J"
+  Area_E:
+    - "Operator_K"
+    - "Operator_L"
+    - "Operator_M"
+  Area_F:
+    - "Operator_E"
+    - "Operator_F"
+    - "Operator_G"
+
+operator_bands:
+  Operator_A:
+    - "n28"
+    - "n78"
+  Operator_B:
+    - "n78"
+  Operator_C:
+    - "n78"
+  Operator_D:
+    - "n28"
+  Operator_E:
+    - "n77"
+    - "n260"
+  Operator_F:
+    - "n77"
+    - "n260"
+  Operator_G:
+    - "n41"
+    - "n258"
+  Operator_H:
+    - "n78"
+    - "n79"
+    - "n257"
+  Operator_I:
+    - "n78"
+    - "n258"
+  Operator_J:
+    - "n28"
+    - "n78"
+  Operator_K:
+    - "n28"
+    - "n78"
+  Operator_L:
+    - "n28"
+    - "n78"
+  Operator_M:
+    - "n78"
+
+band_gain_db:
+  "N/A": 0
+  n28: 3
+  n41: -2
+  n77: 0
+  n78: 0
+  n79: -1
+  n257: -13
+  n258: -12
+  n260: -14
+
+infrastructure_profiles:
+  Nominal: 0.0
+  Moderately_Degraded: 0.8
+  Severely_Degraded: 1.5
+
+ue_profiles:
+  UE-Advanced:
+    tier: "Advanced"
+    throughput_efficiency: 1.10
+    energy_efficiency: 0.95
+  UE-Standard:
+    tier: "Standard"
+    throughput_efficiency: 1.00
+    energy_efficiency: 1.00
+  UE-Basic:
+    tier: "Basic"
+    throughput_efficiency: 0.85
+    energy_efficiency: 1.10
+
+downlink_demand_median_mbps:
+  "4G":
+    Browse: 25
+    Call: 4
+    Gaming: 55
+    Streaming: 120
+  "5G NSA":
+    Browse: 60
+    Call: 8
+    Gaming: 140
+    Streaming: 350
+  "5G SA":
+    Browse: 70
+    Call: 8
+    Gaming: 170
+    Streaming: 420
+
+uplink_demand_median_mbps:
+  "4G":
+    Browse: 1.0
+    Call: 0.5
+    Gaming: 6
+    Streaming: 20
+  "5G NSA":
+    Browse: 0.6
+    Call: 0.3
+    Gaming: 6
+    Streaming: 35
+  "5G SA":
+    Browse: 1.0
+    Call: 0.4
+    Gaming: 8
+    Streaming: 40
+
+mobility_transition_matrix:
+  Static:
+    states:
+      - "Static"
+      - "Walking"
+    weights:
+      - 0.5
+      - 0.5
+  Walking:
+    states:
+      - "Static"
+      - "Walking"
+      - "Driving"
+    weights:
+      - 0.4
+      - 0.4
+      - 0.2
+  Driving:
+    states:
+      - "Walking"
+      - "Driving"
+    weights:
+      - 0.3
+      - 0.7
+
+column_names:
+  timestamp: "Timestamp"
+  hour: "Hour"
+  day_of_week: "Day_of_Week"
+  is_weekend: "Is_Weekend"
+  user_id: "User_ID"
+  session_id: "Session_ID"
+  deployment_area: "Deployment_Area"
+  synthetic_latitude: "Synthetic_Latitude"
+  synthetic_longitude: "Synthetic_Longitude"
+  area_type: "Area_Type"
+  signal_strength: "Signal_Strength_dBm"
+  download_speed: "Download_Speed_Mbps"
+  upload_speed: "Upload_Speed_Mbps"
+  latency: "Latency_ms"
+  jitter: "Jitter_ms"
+  ping: "Ping_ms"
+  network_type: "Network_Type"
+  ue_profile: "UE_Profile"
+  ue_capability_class: "UE_Capability_Class"
+  operator_profile: "Operator_Profile"
+  infrastructure_profile: "Infrastructure_Profile"
+  band: "Band"
+  battery_level: "Battery_Level_percent"
+  temperature: "Temperature_C"
+  data_usage: "Data_Usage_MB"
+  congestion_level: "Congestion_Level"
+  movement_speed: "Movement_Speed"
+  app_type: "App_Type"
+  weather: "Weather"
+  obstruction_level: "Obstruction_Level"
+  is_indoor: "Is_Indoor"
+  tower_load: "Tower_Load"
+  video_quality: "Video_Quality"
+  video_quality_label: "Video_Quality_Label"
+  vonr_enabled: "VoNR_Enabled"
+  anomalous: "Anomalous"
+  dropped_connection: "Dropped_Connection"
 
 outputs:
   dataset: "data/synthetic/synnetqos-dataset.csv"
   integrity_summary: "results/generator/dataset_integrity_summary.csv"
   schema: "results/generator/dataset_schema.csv"
+  numerical_range_summary: "results/generator/numerical_range_summary.csv"
+  outlier_report: "results/generator/outlier_report.csv"
   config_export: "results/generator/generator_config.json"
+  monte_carlo_run_metrics: "results/generator/monte_carlo_run_metrics.csv"
+  monte_carlo_stability_summary: "results/generator/monte_carlo_stability_summary.csv"
+  supplementary_figures: "figures/supplementary"

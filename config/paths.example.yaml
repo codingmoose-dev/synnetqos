@@ -1,16 +1,31 @@
+# Local path configuration for SynNetQoS.
+
 synthetic_dataset: "data/synthetic/synnetqos-dataset.csv"
 
-vienna:
-  phone_lte: "data/raw_external/vienna/phone/phone_data_lte.parquet"
-  phone_5g: "data/raw_external/vienna/phone/phone_data_5g.parquet"
+data:
+  synthetic_dir: "data/synthetic"
+  raw_dir: "data/raw"
+  interim_dir: "data/interim"
+  external_dir: "data/external"
 
-campus_qos:
-  ntnu_throughput: "data/raw_external/campus_qos/ntnu_tput_all_Throughput.csv"
-  wue_throughput: "data/raw_external/campus_qos/wue_tput_all_Throughput.csv"
+external_sources:
+  vienna:
+    phone_lte: "data/external/vienna/phone/phone_data_lte.parquet"
+    phone_5g: "data/external/vienna/phone/phone_data_5g.parquet"
+  campus_qos:
+    ntnu_throughput: "data/external/campus_qos/ntnu_tput_all_Throughput.csv"
+    wue_throughput: "data/external/campus_qos/wue_tput_all_Throughput.csv"
 
 results:
   generator: "results/generator"
   external_validation: "results/external_validation"
   ml_benchmark: "results/ml_benchmark"
-  paper_figures: "figures/paper"
-  supplementary_figures: "figures/supplementary"
+
+figures:
+  main: "figures/main"
+  supplementary: "figures/supplementary"
+  working: "figures/working"
+
+archive:
+  readme: "archive/README.md"
+  exploratory_figures: "archive/exploratory_figures"
