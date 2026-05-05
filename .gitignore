@@ -1,40 +1,56 @@
-# Python
+# Python cache
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
+*$py.class
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
-.ipynb_checkpoints/
 
 # Virtual environments
 .venv/
 venv/
 env/
-ENV/
 
-# OS/editor
+# Build/package artifacts
+build/
+dist/
+*.egg-info/
+*.egg-info
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS/editor files
 .DS_Store
-Thumbs.db
 .vscode/
 .idea/
 
-# Local configuration
-.env
-config/paths.local.yaml
+# Test/cache outputs
+.coverage
+htmlcov/
 
-# Raw/external data should not be committed unless license permits it
-data/raw_external/
+# Logs
+*.log
+
+# Local config
+config/paths.yaml
+config/local*.yaml
+
+# Raw/intermediate/external datasets should stay local
+data/raw/
 data/interim/
-data/cache/
+data/external/
 
-# Large generated outputs
-results/
-figures/supplementary/
-archive/
-*.zip
+# Temporary/local result folders only
+results/tmp/
+results/debug/
+results/local/
 
-# Keep final lightweight paper assets manually if needed
-!results/README.md
-!figures/README.md
+# Temporary/local figure folders only
+figures/tmp/
+figures/debug/
+figures/working/
+
+# Keep archive README only; do not push exploratory archived outputs
+archive/*
+!archive/README.md
