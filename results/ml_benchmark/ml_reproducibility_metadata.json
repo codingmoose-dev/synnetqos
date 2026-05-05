@@ -1,0 +1,15 @@
+{
+    "dataset_path": "data/synthetic/synnetqos-dataset.csv",
+    "dataset_sha256": "94b66fa193868d489a3e5e85316dfa1cdec0dd37aa9de3a8598a55715c022d00",
+    "n_rows": 50000,
+    "n_columns": 47,
+    "seeds": [
+        42,
+        52,
+        62
+    ],
+    "split_strategy": "Session-wise GroupShuffleSplit; 60/20/20 train/validation/test",
+    "threshold_strategy": "Threshold selected on validation set by maximum F1; test set used only once for reporting.",
+    "class_imbalance_strategy": "Class-weighted tree-based models where applicable; no SMOTE or row duplication.",
+    "primary_interpretation": "ML benchmark evaluates internal learnability under leakage-aware splitting; it does not prove real-world deployment accuracy."
+}

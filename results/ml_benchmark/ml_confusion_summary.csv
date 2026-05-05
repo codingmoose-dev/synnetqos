@@ -1,0 +1,28 @@
+task_id,task_label,model,seed,threshold,tn,fp,fn,tp
+A_current_drop_full_qos,A,Dummy stratified,42,1e-09,0,9727,0,273
+A_current_drop_full_qos,A,Random forest,42,0.5719831134192638,9689,38,71,202
+A_current_drop_full_qos,A,HistGradientBoosting,42,0.8851476401192624,9673,54,59,214
+A_current_drop_full_qos,A,Dummy stratified,52,1e-09,0,9691,0,309
+A_current_drop_full_qos,A,Random forest,52,0.4338030301765025,9615,76,43,266
+A_current_drop_full_qos,A,HistGradientBoosting,52,0.9392920196687568,9651,40,69,240
+A_current_drop_full_qos,A,Dummy stratified,62,1e-09,0,9698,0,302
+A_current_drop_full_qos,A,Random forest,62,0.384055837988681,9613,85,33,269
+A_current_drop_full_qos,A,HistGradientBoosting,62,0.8710540514755637,9640,58,50,252
+B_future_drop_full_current_qos,B,Dummy stratified,42,1e-09,0,8749,0,251
+B_future_drop_full_current_qos,B,Random forest,42,0.2451111456325443,8401,348,97,154
+B_future_drop_full_current_qos,B,HistGradientBoosting,42,0.8749432760595766,8484,265,106,145
+B_future_drop_full_current_qos,B,Dummy stratified,52,1e-09,0,8725,0,275
+B_future_drop_full_current_qos,B,Random forest,52,0.23464409247246312,8375,350,109,166
+B_future_drop_full_current_qos,B,HistGradientBoosting,52,0.8288829298270897,8411,314,115,160
+B_future_drop_full_current_qos,B,Dummy stratified,62,1e-09,0,8727,0,273
+B_future_drop_full_current_qos,B,Random forest,62,0.22036604483446684,8344,383,102,171
+B_future_drop_full_current_qos,B,HistGradientBoosting,62,0.8575311465208224,8411,316,126,147
+C_future_drop_context_only,C,Dummy stratified,42,1e-09,0,8749,0,251
+C_future_drop_context_only,C,Random forest,42,0.19977141723594583,8038,711,152,99
+C_future_drop_context_only,C,HistGradientBoosting,42,0.703560829932216,7848,901,125,126
+C_future_drop_context_only,C,Dummy stratified,52,1e-09,0,8725,0,275
+C_future_drop_context_only,C,Random forest,52,0.18982487204259926,8059,666,165,110
+C_future_drop_context_only,C,HistGradientBoosting,52,0.7024241774383901,7868,857,151,124
+C_future_drop_context_only,C,Dummy stratified,62,1e-09,0,8727,0,273
+C_future_drop_context_only,C,Random forest,62,0.15294994413977248,7831,896,133,140
+C_future_drop_context_only,C,HistGradientBoosting,62,0.7482276259549401,8209,518,157,116
