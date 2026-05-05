@@ -258,3 +258,128 @@ def plot_binned_median_trend(trend_df: pd.DataFrame, title: str, xlabel: str, yl
     # ax.set_title(title)
     ax.set_xlabel(xlabel), ax.set_ylabel(ylabel), ax.legend(), fig.tight_layout()
     return fig
+
+# Plot mean ML benchmark performance across tasks and models.
+def plot_ml_task_result_bars(
+    summary_df: pd.DataFrame,
+    metric: str = "average_precision",
+) -> plt.Figure:
+    mean_col = f"{metric}_mean"
+    std_col = f"{metric}_std"
+
+    required = ["task_label", "model", mean_col]
+    missing = [col for col in required if col not in summary_df.columns]
+
+    if missing:
+        raise KeyError(f"summary_df is missing required columns for ML bar plot: {missing}")
+
+    plot_df = summary_df.copy()
+
+    if std_col not in plot_df.columns:
+        plot_df[std_col] = 0.0
+
+    plot_df["task_model"] = (
+        plot_df["task_label"].astype(str) + " — " + plot_df["model"].astype(str)
+    )
+
+    plot_df = plot_df.sort_values(
+        ["task_label", mean_col],
+        ascending=[True, True],
+    )
+
+    fig_height = max(4.8, 0.32 * len(plot_df))
+    fig, ax = plt.subplots(figsize=(8, fig_height))
+
+    positions = np.arange(len(plot_df))
+
+    ax.barh(
+        positions,
+        plot_df[mean_col],
+        xerr=plot_df[std_col].fillna(0.0),
+        capsize=3,
+    )
+
+    ax.set_yticks(positions)
+    ax.set_yticklabels(plot_df["task_model"])
+    ax.set_xlabel(metric.replace("_", " ").title())
+    ax.set_ylabel("")
+    ax.set_xlim(left=0)
+    ax.grid(axis="x", alpha=0.25)
+
+    fig.tight_layout()
+    return fig
+
+# Plot precision-recall curves for one selected benchmark task.
+def plot_ml_precision_recall_curves(
+    curve_rows: list[dict[str, object]],
+    task_id: str = "C_future_drop_context_only",
+    title: str = "Precision-Recall Curves: Leakage-Controlled Future-Drop Prediction",
+) -> plt.Figure:
+    from sklearn.metrics import average_precision_score, precision_recall_curve
+
+    selected = [row for row in curve_rows if row.get("task_id") == task_id]
+
+    if not selected and curve_rows:
+        selected = [
+            row
+            for row in curve_rows
+            if row.get("task_id") == curve_rows[0].get("task_id")
+        ]
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+
+    if not selected:
+        ax.text(
+            0.5,
+            0.5,
+            "No curve data available",
+            transform=ax.transAxes,
+            ha="center",
+            va="center",
+        )
+        ax.set_xlabel("Recall")
+        ax.set_ylabel("Precision")
+        fig.tight_layout()
+        return fig
+
+    base_rate = None
+
+    for row in selected:
+        y_true = np.asarray(row["y_true"])
+        y_prob = np.asarray(row["y_prob"])
+
+        if len(np.unique(y_true)) < 2:
+            continue
+
+        precision, recall, _ = precision_recall_curve(y_true, y_prob)
+        ap = average_precision_score(y_true, y_prob)
+
+        model = str(row.get("model", "model"))
+
+        ax.plot(
+            recall,
+            precision,
+            label=f"{model} (AP={ap:.3f})",
+        )
+
+        base_rate = float(np.mean(y_true))
+
+    if base_rate is not None:
+        ax.axhline(
+            base_rate,
+            linestyle="--",
+            linewidth=1,
+            label=f"Base rate={base_rate:.3f}",
+        )
+
+    # LaTeX caption/title candidate: title
+    # ax.set_title(title)
+    ax.set_xlabel("Recall")
+    ax.set_ylabel("Precision")
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1.02)
+    ax.legend(loc="best")
+    ax.grid(alpha=0.25)
+
+    fig.tight_layout()
+    return fig
