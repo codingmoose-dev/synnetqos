@@ -1,17 +1,16 @@
 from __future__ import annotations
-
 from pathlib import Path
 
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 from synnetqos.generator import generate_full_dataset
 from synnetqos.io import save_plot, write_csv
+from synnetqos.plotting import plot_monte_carlo_stability, setup_plot_style
 
 # Executes multiple passes of the dataset generator to ensure statistical convergence and stability across different random seeds.
 def run_monte_carlo_stability(n_runs: int = 20, sessions_per_run: int = 5000, out_dir: str | Path = "figures/supplementary") -> None:
     print("--- Running Monte Carlo Generator Stability Check ---")
+    setup_plot_style()
     run_stats: list[dict[str, float]] = []
 
     for i in range(n_runs):
@@ -26,10 +25,11 @@ def run_monte_carlo_stability(n_runs: int = 20, sessions_per_run: int = 5000, ou
 
     stats_df = pd.DataFrame(run_stats)
     output_path = Path(out_dir) / "monte_carlo_stability.pdf"
-    fig, ax = plt.subplots()
-    sns.boxplot(data=stats_df, ax=ax)
-    ax.set_title(f"Generator Metrics Across {n_runs} Independent Runs")
-    ax.set_ylabel("Mean Value per Full Dataset")
+
+    fig = plot_monte_carlo_stability(
+        stats_df,
+        title="Monte Carlo Stability across Independent Generator Runs",
+    )
     save_plot(fig, output_path)
 
     # Calculate Coefficient of Variation (CV)
