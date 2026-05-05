@@ -1,0 +1,4 @@
+source,x,y,n,spearman_rho,p_value
+SynNetQoS,rsrp_dbm,download_mbps,50000,0.46122977654528047,0.0
+Vienna_phone_5G_serving_cell,rsrp_dbm,download_mbps,199861,0.030328395657738278,6.765223732083337e-42
+Vienna_phone_LTE,rsrp_dbm,download_mbps,1156170,0.19820912359022533,0.0

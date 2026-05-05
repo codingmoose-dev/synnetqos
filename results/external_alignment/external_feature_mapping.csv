@@ -1,0 +1,7 @@
+synthetic_variable,common_variable,external_source,external_columns,main_use,notes
+Signal_Strength_dBm,rsrp_dbm,Vienna phone LTE/5G,rsrp_dbm,main,Primary external radio-signal alignment variable.
+Download_Speed_Mbps,download_mbps,Vienna phone LTE/5G; Campus QoS,dl_throughput_mbps; mbpsactual_downlink,main,Primary QoS distribution-alignment variable.
+Jitter_ms,jitter_ms,Campus QoS,meanjitterms_downlink,main,Used only in controlled 5G-like comparison.
+Upload_Speed_Mbps,upload_mbps,Vienna phone LTE/5G; Campus QoS,ul_throughput_mbps; mbpsactual_uplink,supplementary/table,Secondary QoS check; not required as a main figure.
+Signal_Strength_dBm,rsrp_dbm,Vienna scanner LTE/5G,rsrp_dbm,supplementary,Scanner data is RSRP-only and should not be mixed with connected-UE throughput validation.
+Packet_Loss,packet_loss,Campus QoS,meanloss_downlink; meanloss_uplink,ignored,Skip unless SynNetQoS explicitly generates packet-loss variables.
