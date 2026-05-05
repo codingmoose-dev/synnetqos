@@ -13,6 +13,9 @@ This folder contains outputs related to the generated SynNetQoS dataset itself.
 - `generator_config.json` records the main generator settings, random seed, and dataset SHA-256 hash. This file supports reproducibility by making the generated dataset traceable to a fixed configuration.
 - `dataset_integrity_summary.csv` checks whether the expected number of rows was generated and whether timestamp ordering was preserved.
 - `dataset_schema.csv` records column names, data types, and missing-value counts.
+
+  `Video_Quality` and `Video_Quality_Label` are conditional QoE variables. They are generated only for rows where `App_Type` is `Streaming`; for Browse, Gaming, and Call sessions, these fields are intentionally left empty because video-quality scoring is not applicable. Therefore, the missing values reported for these two columns in `dataset_schema.csv` should be interpreted as non-applicability rather than incomplete data.
+
 - `numerical_range_summary.csv` summarizes the observed numerical ranges of key synthetic variables.
 - `outlier_report.csv` reports distributional extremes using an IQR-based rule. These values are diagnostic and should not automatically be treated as invalid.
 - `monte_carlo_run_metrics.csv` stores run-level metrics from repeated generator runs.
