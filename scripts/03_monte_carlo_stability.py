@@ -7,7 +7,7 @@ from synnetqos.generator import generate_full_dataset
 from synnetqos.io import save_plot, write_csv
 from synnetqos.plotting import plot_monte_carlo_stability, setup_plot_style
 
-# Executes multiple passes of the dataset generator to ensure statistical convergence and stability across different random seeds.
+# Executes multiple passes of the dataset generator to assess run-to-run stability across different random seeds.
 def run_monte_carlo_stability(n_runs: int = 20, sessions_per_run: int = 5000, out_dir: str | Path = "figures/supplementary") -> None:
     print("--- Running Monte Carlo Generator Stability Check ---")
     setup_plot_style()

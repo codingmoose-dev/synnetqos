@@ -8,7 +8,7 @@ from synnetqos.plotting import (
     plot_vonr_latency_boxplot,
     setup_plot_style,
 )
-from synnetqos.validation import validate_vonr_latency
+from synnetqos.validation import check_vonr_latency_consistency
 
 def main():
     print("--- Running Internal Consistency Checks ---")
@@ -41,24 +41,24 @@ def main():
     print("Generating scenario coverage heatmap...")
     fig_coverage = plot_scenario_coverage(df)
     save_plot(fig_coverage, f"{supplementary_dir}/dataset_coverage_heatmap.pdf")
-        
-    print("Validating physical relationships (Mobility vs Handovers)...")
+
+    print("Checking internal consistency: Mobility vs Handovers.")
     fig_mobility = plot_mobility_vs_handovers(df)
     save_plot(fig_mobility, f"{supplementary_dir}/internal_check_mobility_vs_handovers.pdf")
         
-    print("Validating physical relationships (Obstruction vs Signal)...")
+    print("Checking internal consistency: Obstruction vs Signal.")
     fig_obstruction = plot_obstruction_vs_signal(df)
     save_plot(fig_obstruction, f"{supplementary_dir}/internal_check_obstruction_vs_signal.pdf")
     
     print("Running VoNR statistical t-test...")
-    vonr_result = validate_vonr_latency(df)
+    vonr_result = check_vonr_latency_consistency(df)
     fig_vonr = plot_vonr_latency_boxplot(df)
     save_plot(fig_vonr, f"{supplementary_dir}/latency_vonr_boxplot.pdf")
     t_stat = vonr_result["t_stat"]
     p_val = vonr_result["p_value"]
 
     print(f"--- VoNR t-Test --- \n t-stat = {t_stat:.3f}, p-val = {p_val:.5e}")
-    print(f"Internal consistency validation complete. Supplementary outputs saved to '{supplementary_dir}', archived exploratory outputs saved to '{archive_dir}'.")
+    print(f"Internal consistency checks complete. Supplementary outputs saved to '{supplementary_dir}', archived exploratory outputs saved to '{archive_dir}'.")
 
 if __name__ == "__main__":
     main()

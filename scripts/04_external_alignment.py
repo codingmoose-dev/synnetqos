@@ -1,11 +1,11 @@
 # Run external alignment against Vienna and Campus QoS datasets.
 # 
 # Main outputs:
-# - results/external_alignment/external_validation_vienna_phone_summary.csv
-# - results/external_alignment/external_validation_campus_controlled_5g_summary.csv
+# - results/external_alignment/external_alignment_vienna_phone_summary.csv
+# - results/external_alignment/external_alignment_campus_controlled_5g_summary.csv
 # - results/external_alignment/external_alignment_summary.csv
 # - results/external_alignment/external_feature_mapping.csv
-# - results/external_alignment/external_validation_diagnostic_summary.csv
+# - results/external_alignment/external_alignment_diagnostic_summary.csv
 # - results/external_alignment/external_alignment_interpretation_flags.csv
 # - results/external_alignment/controlled_5g_subset_audit.csv
 # - figures/external_alignment/external_rsrp_ecdf_vienna_phone_matched.pdf
@@ -14,7 +14,7 @@
 # - figures/external_alignment/external_jitter_ecdf_syn_vs_campus_controlled.pdf
 # 
 # Supplementary outputs:
-# - results/external_alignment/supplementary/external_validation_vienna_positive_downlink_summary.csv
+# - results/external_alignment/supplementary/external_alignment_vienna_positive_downlink_summary.csv
 # - results/external_alignment/supplementary/external_rsrp_to_throughput_trend.csv
 # - results/external_alignment/supplementary/external_spearman_rsrp_throughput.csv
 # - results/external_alignment/supplementary/vienna_scanner_rsrp_summary.csv
@@ -90,7 +90,7 @@ def main() -> None:
     )
     
     vienna_external_summary = pd.concat([vienna_rsrp_table, vienna_downlink_table, vienna_uplink_table], ignore_index=True)
-    write_csv(vienna_external_summary, result_dir / "external_validation_vienna_phone_summary.csv")
+    write_csv(vienna_external_summary, result_dir / "external_alignment_vienna_phone_summary.csv")
 
     print("Computing Campus controlled-5G external-alignment summaries...")
     campus_rows = []
@@ -99,7 +99,7 @@ def main() -> None:
         row["comparison_group"], row["synthetic_network_type"], row["external_network_type"] = "Campus controlled 5G", "controlled 5G subset", "5G"
         campus_rows.append(row)
     campus_external_summary = pd.DataFrame(campus_rows)
-    write_csv(campus_external_summary, result_dir / "external_validation_campus_controlled_5g_summary.csv")
+    write_csv(campus_external_summary, result_dir / "external_alignment_campus_controlled_5g_summary.csv")
 
     external_alignment_summary = pd.concat([vienna_external_summary, campus_external_summary], ignore_index=True)
     write_csv(external_alignment_summary, result_dir / "external_alignment_summary.csv")
@@ -116,7 +116,7 @@ def main() -> None:
         network_pairs=vienna_network_pairs,
         comparison_group="Vienna phone positive-throughput subset",
     )
-    write_csv(vienna_positive_downlink_summary, supplementary_result_dir / "external_validation_vienna_positive_downlink_summary.csv")
+    write_csv(vienna_positive_downlink_summary, supplementary_result_dir / "external_alignment_vienna_positive_downlink_summary.csv")
 
     diagnostic_df = diagnostic_summary({
         "SynNetQoS_all": syn_common,
@@ -128,7 +128,7 @@ def main() -> None:
         "Vienna_phone_5G_serving_cell": vienna_phone_common[vienna_phone_common["network_type"] == "5G"],
         "Campus_5G_QoS": campus_common,
     })
-    write_csv(diagnostic_df, result_dir / "external_validation_diagnostic_summary.csv")
+    write_csv(diagnostic_df, result_dir / "external_alignment_diagnostic_summary.csv")
 
     combined_rsrp_throughput = pd.concat([syn_common[["source", "rsrp_dbm", "download_mbps"]], vienna_phone_common[["source", "rsrp_dbm", "download_mbps"]]], ignore_index=True).dropna(subset=["rsrp_dbm", "download_mbps"])
     trend_table = binned_median_table(combined_rsrp_throughput, x_col="rsrp_dbm", y_col="download_mbps", source_col="source", bins=10)
