@@ -1,6 +1,6 @@
 from synnetqos.config import GeneratorConfig
 from synnetqos.generator import generate_full_dataset
-from synnetqos.audits import dataset_integrity_summary, dataset_schema, numerical_range_summary, outlier_report
+from synnetqos.audits import dataset_integrity_summary, dataset_schema, numerical_range_summary, outlier_report, propagation_model_audit
 from synnetqos.io import write_csv, save_json, sha256_of_file
 
 def main() -> None:
@@ -17,10 +17,13 @@ def main() -> None:
     print("Executing silent integrity audits and writing to disk...")
     
     analysis_features = [
-        "Signal_Strength_dBm", "Link_Capacity_Downlink_Mbps", "Offered_Downlink_Mbps", 
-        "Download_Speed_Mbps", "Link_Capacity_Upload_Mbps", "Offered_Upload_Mbps", 
-        "Upload_Speed_Mbps", "Latency_ms", "Jitter_ms", "Ping_ms", "Battery_Level_percent", 
-        "Temperature_C", "Connected_Duration_min", "Interval_Handover_Count", 
+        "Signal_Strength_dBm", "Signal_Strength_Unclipped_dBm", "Carrier_Frequency_GHz",
+        "Distance_2D_m", "Distance_3D_m", "Breakpoint_Distance_m", "LOS_Probability",
+        "Path_Loss_dB", "Deterministic_Path_Loss_dB", "Shadow_Fading_dB", "Fast_Fading_dB",
+        "Contextual_Penalty_dB", "Link_Capacity_Downlink_Mbps", "Offered_Downlink_Mbps",
+        "Download_Speed_Mbps", "Link_Capacity_Upload_Mbps", "Offered_Upload_Mbps",
+        "Upload_Speed_Mbps", "Latency_ms", "Jitter_ms", "Ping_ms", "Battery_Level_percent",
+        "Temperature_C", "Connected_Duration_min", "Interval_Handover_Count",
         "Cumulative_Handover_Count", "Data_Usage_MB", "Distance_to_Tower_km"
     ]
 
@@ -30,6 +33,7 @@ def main() -> None:
     write_csv(dataset_integrity_summary(df, config.num_sessions, config.session_length), "results/generator/dataset_integrity_summary.csv")
     write_csv(dataset_schema(df), "results/generator/dataset_schema.csv")
     write_csv(numerical_range_summary(df), "results/generator/numerical_range_summary.csv")
+    write_csv(propagation_model_audit(df), "results/generator/propagation_model_audit.csv")
     write_csv(outlier_report(df, analysis_features), "results/generator/outlier_report.csv")
     
     # Calculate dataset cryptographic hash

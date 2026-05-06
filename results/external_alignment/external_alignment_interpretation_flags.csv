@@ -1,4 +1,7 @@
 comparison_group,variable,flag,interpretation
-Vienna phone,Upload throughput (4G),synthetic_high_throughput,Synthetic throughput median is higher than the external reference.
+Vienna phone,RSRP (4G),synthetic_weaker_rsrp,Synthetic RSRP median is weaker than the external reference by more than 8 dB.
+Vienna phone,Download throughput (4G),synthetic_low_throughput,Synthetic throughput median is lower than the external reference.
+Vienna phone,Download throughput (5G NSA),synthetic_low_throughput,Synthetic throughput median is lower than the external reference.
 Vienna phone,Upload throughput (5G NSA),synthetic_high_throughput,Synthetic throughput median is higher than the external reference.
 Campus controlled 5G,Controlled 5G upload throughput,synthetic_low_throughput,Synthetic throughput median is lower than the external reference.
+Campus controlled 5G,Controlled 5G downlink jitter,synthetic_high_jitter,Synthetic jitter median is higher than the external reference.

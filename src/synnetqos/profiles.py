@@ -12,7 +12,43 @@ INFRASTRUCTURE_PROFILES = {"Nominal": 0.0, "Moderately_Degraded": 0.8, "Severely
 
 UE_PROFILES = {"UE-Advanced": {"tier": "Advanced", "throughput_efficiency": 1.10, "energy_efficiency": 0.95}, "UE-Standard": {"tier": "Standard", "throughput_efficiency": 1.00, "energy_efficiency": 1.00}, "UE-Basic": {"tier": "Basic", "throughput_efficiency": 0.85, "energy_efficiency": 1.10}}
 UE_PROFILE_NAMES = list(UE_PROFILES.keys())
-BAND_GAIN_DB = {"N/A": 0, "n28": 3, "n41": -2, "n77": 0, "n78": 0, "n79": -1, "n257": -13, "n258": -12, "n260": -14}
+BAND_GAIN_DB = {
+    "LTE_Anchor": 0,
+    "n28": 3,
+    "n41": -2,
+    "n77": 0,
+    "n78": 0,
+    "n79": -1,
+    "n257": -13,
+    "n258": -12,
+    "n260": -14,
+}
+
+# Representative center frequencies for synthetic band profiles.
+# Used by the TR 38.901 UMi-Street Canyon path-loss mode; values are in GHz.
+BAND_FREQUENCY_GHZ = {
+    "LTE_Anchor": 2.6,
+    "n28": 0.7,
+    "n41": 2.5,
+    "n77": 3.7,
+    "n78": 3.5,
+    "n79": 4.7,
+    "n257": 28.0,
+    "n258": 26.0,
+    "n260": 39.0,
+}
+
+BAND_DISTANCE_LIMITS_KM = {
+    "LTE_Anchor": 2.0,
+    "n28": 3.0,
+    "n41": 2.0,
+    "n77": 2.0,
+    "n78": 2.0,
+    "n79": 1.5,
+    "n257": 0.35,
+    "n258": 0.35,
+    "n260": 0.30,
+}
 
 DOWNLINK_DEMAND_MEDIAN_MBPS = {"4G": {"Browse": 25, "Call": 4, "Gaming": 55, "Streaming": 120}, "5G NSA": {"Browse": 60, "Call": 8, "Gaming": 140, "Streaming": 350}, "5G SA": {"Browse": 70, "Call": 8, "Gaming": 170, "Streaming": 420}}
 UPLINK_DEMAND_MEDIAN_MBPS = {"4G": {"Browse": 1.0, "Call": 0.5, "Gaming": 6, "Streaming": 20}, "5G NSA": {"Browse": 0.6, "Call": 0.3, "Gaming": 6, "Streaming": 35}, "5G SA": {"Browse": 1.0, "Call": 0.4, "Gaming": 8, "Streaming": 40}}

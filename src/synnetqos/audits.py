@@ -13,10 +13,15 @@ def dataset_integrity_summary(df: pd.DataFrame, expected_sessions: int, session_
 
 def numerical_range_summary(df: pd.DataFrame) -> pd.DataFrame:
     range_cols = [
-        "Signal_Strength_dBm", "Link_Capacity_Downlink_Mbps", "Offered_Downlink_Mbps",
-        "Download_Speed_Mbps", "Link_Capacity_Upload_Mbps", "Offered_Upload_Mbps",
-        "Upload_Speed_Mbps", "Latency_ms", "Jitter_ms", "Battery_Level_percent",
-        "Interval_Handover_Count", "Cumulative_Handover_Count", "Distance_to_Tower_km"
+        "Signal_Strength_dBm", "Signal_Strength_Unclipped_dBm", "Carrier_Frequency_GHz",
+        "Distance_2D_m", "Distance_3D_m", "Breakpoint_Distance_m", "LOS_Probability",
+        "Path_Loss_dB", "Deterministic_Path_Loss_dB", "Shadow_Fading_dB", "Fast_Fading_dB",
+        "Obstruction_Penalty_dB", "Weather_Penalty_dB", "Mobility_Penalty_dB", "Indoor_Penalty_dB",
+        "Contextual_Penalty_dB", "Effective_TX_Power_dBm", "Link_Capacity_Downlink_Mbps",
+        "Offered_Downlink_Mbps", "Download_Speed_Mbps", "Link_Capacity_Upload_Mbps",
+        "Offered_Upload_Mbps", "Upload_Speed_Mbps", "Latency_ms", "Jitter_ms",
+        "Battery_Level_percent", "Interval_Handover_Count", "Cumulative_Handover_Count",
+        "Distance_to_Tower_km"
     ]
     
     valid_cols = [col for col in range_cols if col in df.columns]
@@ -52,3 +57,29 @@ def dataset_schema(df: pd.DataFrame) -> pd.DataFrame:
         "Missing_Percent": [round(float(df[col].isna().mean() * 100), 4) for col in df.columns],
     })
     
+
+def propagation_model_audit(df: pd.DataFrame) -> pd.DataFrame:
+    required = [
+        "Propagation_Model", "Propagation_Scenario", "LOS_State", "Band", "Carrier_Frequency_GHz",
+        "Distance_2D_m", "Path_Loss_dB", "Signal_Strength_dBm", "RSRP_Clipped"
+    ]
+    missing = [col for col in required if col not in df.columns]
+    if missing:
+        raise KeyError(f"Propagation audit is missing required columns: {missing}")
+
+    rows = []
+    group_cols = ["Propagation_Model", "Propagation_Scenario", "LOS_State"]
+    for keys, group in df.groupby(group_cols, dropna=False):
+        rows.append({
+            "Propagation_Model": keys[0],
+            "Propagation_Scenario": keys[1],
+            "LOS_State": keys[2],
+            "Rows": int(len(group)),
+            "Median_Carrier_Frequency_GHz": round(pd.to_numeric(group["Carrier_Frequency_GHz"], errors="coerce").median(), 3),
+            "Median_Distance_2D_m": round(pd.to_numeric(group["Distance_2D_m"], errors="coerce").median(), 2),
+            "Median_Path_Loss_dB": round(pd.to_numeric(group["Path_Loss_dB"], errors="coerce").median(), 2),
+            "Median_RSRP_dBm": round(pd.to_numeric(group["Signal_Strength_dBm"], errors="coerce").median(), 2),
+            "RSRP_Clipped_Percent": round(group["RSRP_Clipped"].astype(bool).mean() * 100, 2),
+        })
+
+    return pd.DataFrame(rows)

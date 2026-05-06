@@ -13,9 +13,25 @@ activity:
   activity_factor_std: 0.025
 
 path_loss:
-  pl0_db: 61.4
-  d0_km: 0.01
-  path_loss_exponent: 3.3
+  propagation_model: "tr38901_umi_street_canyon"
+
+  tr38901_umi_street_canyon:
+    effective_tx_power_dbm: 44.0
+    base_station_height_m: 10.0
+    ue_height_m: 1.5
+    light_speed_m_per_s: 3.0e8
+    default_carrier_frequency_ghz: 3.5
+    los_shadow_fading_std_db: 4.0
+    nlos_shadow_fading_std_db: 7.82
+    fast_fading_std_db: 2.0
+    min_2d_distance_m: 10.0
+    max_2d_distance_m: 5000.0
+
+  legacy_log_distance:
+    pl0_db: 61.4
+    d0_km: 0.01
+    path_loss_exponent: 3.3
+
   rsrp_min_dbm: -135.0
   rsrp_max_dbm: -50.0
 
@@ -163,6 +179,17 @@ band_gain_db:
   n258: -12
   n260: -14
 
+band_frequencies_ghz:
+  "N/A": 2.6
+  n28: 0.7
+  n41: 2.5
+  n77: 3.7
+  n78: 3.5
+  n79: 4.7
+  n257: 28.0
+  n258: 26.0
+  n260: 39.0
+
 infrastructure_profiles:
   Nominal: 0.0
   Moderately_Degraded: 0.8
@@ -253,6 +280,22 @@ column_names:
   synthetic_longitude: "Synthetic_Longitude"
   area_type: "Area_Type"
   signal_strength: "Signal_Strength_dBm"
+  propagation_model: "Propagation_Model"
+  propagation_scenario: "Propagation_Scenario"
+  los_state: "LOS_State"
+  los_probability: "LOS_Probability"
+  carrier_frequency: "Carrier_Frequency_GHz"
+  distance_2d: "Distance_2D_m"
+  distance_3d: "Distance_3D_m"
+  breakpoint_distance: "Breakpoint_Distance_m"
+  path_loss: "Path_Loss_dB"
+  deterministic_path_loss: "Deterministic_Path_Loss_dB"
+  shadow_fading: "Shadow_Fading_dB"
+  fast_fading: "Fast_Fading_dB"
+  contextual_penalty: "Contextual_Penalty_dB"
+  effective_tx_power: "Effective_TX_Power_dBm"
+  signal_strength_unclipped: "Signal_Strength_Unclipped_dBm"
+  rsrp_clipped: "RSRP_Clipped"
   link_capacity_downlink: "Link_Capacity_Downlink_Mbps"
   offered_downlink: "Offered_Downlink_Mbps"
   download_speed: "Download_Speed_Mbps"

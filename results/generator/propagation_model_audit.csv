@@ -1,0 +1,3 @@
+Propagation_Model,Propagation_Scenario,LOS_State,Rows,Median_Carrier_Frequency_GHz,Median_Distance_2D_m,Median_Path_Loss_dB,Median_RSRP_dBm,RSRP_Clipped_Percent
+tr38901_umi_street_canyon,UMi_Street_Canyon,LOS,3067,3.5,230.0,98.2,-67.28,20.7
+tr38901_umi_street_canyon,UMi_Street_Canyon,NLOS,46933,3.5,513.39,131.16,-99.67,2.37

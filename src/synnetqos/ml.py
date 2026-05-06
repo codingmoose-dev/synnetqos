@@ -53,6 +53,26 @@ LABEL_OR_AUDIT_COLUMNS: tuple[str, ...] = (
 GENERATOR_INTERNAL_OR_DEMAND_COLUMNS: tuple[str, ...] = (
     "Offered_Downlink_Mbps",
     "Offered_Upload_Mbps",
+    "Propagation_Model",
+    "Propagation_Scenario",
+    "LOS_State",
+    "LOS_Probability",
+    "Carrier_Frequency_GHz",
+    "Distance_2D_m",
+    "Distance_3D_m",
+    "Breakpoint_Distance_m",
+    "Path_Loss_dB",
+    "Deterministic_Path_Loss_dB",
+    "Shadow_Fading_dB",
+    "Fast_Fading_dB",
+    "Obstruction_Penalty_dB",
+    "Weather_Penalty_dB",
+    "Mobility_Penalty_dB",
+    "Indoor_Penalty_dB",
+    "Contextual_Penalty_dB",
+    "Effective_TX_Power_dBm",
+    "Signal_Strength_Unclipped_dBm",
+    "RSRP_Clipped",
 )
 
 CONTEXT_ONLY_FEATURES: tuple[str, ...] = (
@@ -69,7 +89,6 @@ CONTEXT_ONLY_FEATURES: tuple[str, ...] = (
     "Movement_Speed",
     "App_Type",
     "Is_Indoor",
-    "Temperature_C",
     "Activity_Factor",
     "Connected_Duration_min",
 )

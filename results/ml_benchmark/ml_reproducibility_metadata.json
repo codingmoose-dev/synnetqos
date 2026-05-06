@@ -1,8 +1,8 @@
 {
     "dataset_path": "data/synthetic/synnetqos-dataset.csv",
-    "dataset_sha256": "94b66fa193868d489a3e5e85316dfa1cdec0dd37aa9de3a8598a55715c022d00",
+    "dataset_sha256": "631afbd12bfe36d05730a8680c6963797be0e9368d8adf4472e7e4aaf497dd40",
     "n_rows": 50000,
-    "n_columns": 47,
+    "n_columns": 67,
     "seeds": [
         42,
         52,

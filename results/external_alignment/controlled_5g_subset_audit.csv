@@ -1,7 +1,7 @@
 step,filter_applied,rows_remaining
 input_rows,none,50000
-5g_network_type,"Network_Type in ['5G NSA', '5G SA']",37280
-nominal_infrastructure,Infrastructure_Profile == 'Nominal',28230
-static_mobility,Movement_Speed == 'Static',14644
-low_or_medium_congestion,"Congestion_Level in ['Low', 'Medium']",8988
-usable_signal,Signal_Strength_dBm > -110,7995
+5g_network_type,"Network_Type in ['5G NSA', '5G SA']",37610
+nominal_infrastructure,Infrastructure_Profile == 'Nominal',28070
+static_mobility,Movement_Speed == 'Static',14209
+low_or_medium_congestion,"Congestion_Level in ['Low', 'Medium']",8746
+usable_signal,Signal_Strength_dBm > -110,6604
