@@ -87,13 +87,13 @@ synnetqos
 │  │  ├─ external_alignment_interpretation_flags.csv
 │  │  ├─ external_alignment_summary.csv
 │  │  ├─ external_feature_mapping.csv
-│  │  ├─ external_validation_campus_controlled_5g_summary.csv
-│  │  ├─ external_validation_diagnostic_summary.csv
-│  │  ├─ external_validation_vienna_phone_summary.csv
+│  │  ├─ external_alignment_campus_controlled_5g_summary.csv
+│  │  ├─ external_alignment_diagnostic_summary.csv
+│  │  ├─ external_alignment_vienna_phone_summary.csv
 │  │  └─ supplementary
 │  │     ├─ external_rsrp_to_throughput_trend.csv
 │  │     ├─ external_spearman_rsrp_throughput.csv
-│  │     ├─ external_validation_vienna_positive_downlink_summary.csv
+│  │     ├─ external_alignment_vienna_positive_downlink_summary.csv
 │  │     └─ vienna_scanner_rsrp_summary.csv
 │  ├─ generator
 │  │  ├─ dataset_integrity_summary.csv
