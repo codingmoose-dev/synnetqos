@@ -1,10 +1,10 @@
+from __future__ import annotations
 import pandas as pd
 
 def dataset_integrity_summary(df: pd.DataFrame, expected_sessions: int, session_length: int) -> pd.DataFrame:
     expected_rows = expected_sessions * session_length
     timestamp_check = df.sort_values(["Session_ID", "Timestamp"]).groupby("Session_ID")["Timestamp"].apply(lambda x: x.is_monotonic_increasing)
-    
-    # Packages core integrity stats into a DataFrame
+
     summary_data = {
         "Metric": ["Expected_Rows", "Generated_Rows", "Monotonic_Timestamps_Percent"],
         "Value": [expected_rows, len(df), round(timestamp_check.mean() * 100, 2)]
@@ -25,7 +25,6 @@ def numerical_range_summary(df: pd.DataFrame) -> pd.DataFrame:
     ]
     
     valid_cols = [col for col in range_cols if col in df.columns]
-    # Computes min, mean, max and returns a transposed dataframe
     summary = df[valid_cols].agg(["min", "mean", "max"]).round(2).T.reset_index()
     summary.rename(columns={"index": "Feature"}, inplace=True)
     return summary
@@ -56,7 +55,6 @@ def dataset_schema(df: pd.DataFrame) -> pd.DataFrame:
         "Missing_Count": [int(df[col].isna().sum()) for col in df.columns],
         "Missing_Percent": [round(float(df[col].isna().mean() * 100), 4) for col in df.columns],
     })
-    
 
 def propagation_model_audit(df: pd.DataFrame) -> pd.DataFrame:
     required = [
@@ -83,3 +81,69 @@ def propagation_model_audit(df: pd.DataFrame) -> pd.DataFrame:
         })
 
     return pd.DataFrame(rows)
+
+def _categorical_drop_summary(df: pd.DataFrame, column: str) -> pd.DataFrame:
+    rows: list[dict[str, object]] = []
+    if column not in df.columns:
+        return pd.DataFrame(rows)
+
+    for value, group in df.groupby(column, dropna=False):
+        positives = int(group["Dropped_Connection"].astype(bool).sum())
+        total = int(len(group))
+        rows.append(
+            {
+                "summary_type": f"by_{column}",
+                "category": str(value),
+                "rows": total,
+                "positive_count": positives,
+                "positive_rate": round(float(positives / total), 6) if total else 0.0,
+            }
+        )
+
+    return pd.DataFrame(rows)
+
+def drop_event_summary(df: pd.DataFrame) -> pd.DataFrame:
+    required = ["Session_ID", "Connected_Duration_min", "Dropped_Connection"]
+    missing = [col for col in required if col not in df.columns]
+    if missing:
+        raise KeyError(f"Drop-event audit is missing required columns: {missing}")
+
+    ordered = df.sort_values(["Session_ID", "Connected_Duration_min"]).copy()
+    ordered["Drop_t_plus_1"] = ordered.groupby("Session_ID")["Dropped_Connection"].shift(-1)
+
+    dropped = ordered["Dropped_Connection"].astype(bool)
+    future = ordered["Drop_t_plus_1"].dropna().astype(bool)
+
+    rows: list[dict[str, object]] = [
+        {
+            "summary_type": "overall_current_drop",
+            "category": "all_rows",
+            "rows": int(len(dropped)),
+            "positive_count": int(dropped.sum()),
+            "positive_rate": round(float(dropped.mean()), 6),
+        },
+        {
+            "summary_type": "overall_future_drop",
+            "category": "nonterminal_session_rows",
+            "rows": int(len(future)),
+            "positive_count": int(future.sum()),
+            "positive_rate": round(float(future.mean()), 6),
+        },
+    ]
+
+    summary_frames = [pd.DataFrame(rows)]
+    for column in [
+        "Network_Type",
+        "Congestion_Level",
+        "Tower_Load",
+        "Infrastructure_Profile",
+        "Band",
+        "Movement_Speed",
+        "Obstruction_Level",
+        "Is_Indoor",
+    ]:
+        frame = _categorical_drop_summary(ordered, column)
+        if not frame.empty:
+            summary_frames.append(frame)
+
+    return pd.concat(summary_frames, ignore_index=True)

@@ -48,9 +48,12 @@ class GeneratorConfig:
     tower_distance_gamma_scale: float = 0.35
     tower_distance_max_km: float = 2.0
 
-    jitter_latency_divisor: float = 450.0
+    jitter_latency_divisor: float = 650.0
     demand_sigma: float = 0.9
 
+    drop_intercept: float = -15.0
+    drop_rate_min: float = 0.015
+    drop_rate_max: float = 0.025
 
 # Default instance to be imported across modules.
 DEFAULT_CONFIG = GeneratorConfig()

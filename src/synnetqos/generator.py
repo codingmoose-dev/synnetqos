@@ -236,16 +236,61 @@ def generate_radio_link(network_type, distance_km, obstruction, weather, movemen
 
 
 def generate_latency(signal_strength, congestion, vonr_enabled, network_type, movement_speed):
-    base_latency = np.interp(signal_strength, [-120, -70], [300, 15])
-    # Scales base latency by network tech, congestion, and mobility multipliers, applying a 15% discount if VoNR is enabled
-    factors = {"Low": 1.0, "Medium": 1.5, "High": 2.5}[congestion] * {"5G SA": 0.6, "5G NSA": 1.0, "4G": 1.4}[network_type] * {"Static": 1.0, "Walking": 1.1, "Driving": 1.25}[movement_speed]
-    latency = base_latency * factors * (0.85 if vonr_enabled else 1.0)
-    return np.clip(latency + np.random.normal(0, 8), 5, 1000)
+    signal_strength = float(signal_strength)
+
+    latency_anchors = {
+        "4G": (-120.0, -70.0, 180.0, 35.0),
+        "5G NSA": (-120.0, -70.0, 130.0, 18.0),
+        "5G SA": (-120.0, -70.0, 95.0, 10.0),
+    }
+
+    poor_signal, good_signal, poor_latency, good_latency = latency_anchors[network_type]
+
+    base_latency = np.interp(
+        signal_strength,
+        [poor_signal, good_signal],
+        [poor_latency, good_latency],
+    )
+
+    congestion_factor = {"Low": 1.0, "Medium": 1.35, "High": 2.1}[congestion]
+    mobility_factor = {"Static": 1.0, "Walking": 1.12, "Driving": 1.35}[movement_speed]
+    vonr_factor = 0.88 if vonr_enabled else 1.0
+    noise_sd = {"4G": 6.0, "5G NSA": 4.0, "5G SA": 3.0}[network_type]
+
+    latency = base_latency * congestion_factor * mobility_factor * vonr_factor
+
+    return float(np.clip(latency + np.random.normal(0.0, noise_sd), 3.0, 600.0))
+
 
 def generate_jitter(latency, movement_speed, congestion):
-    # Computes mean jitter proportional to latency, scales it by mobility and congestion factors, then applies random noise
-    mean_jitter = max(0.05, (latency / config.DEFAULT_CONFIG.jitter_latency_divisor) * {"Static": 0.8, "Walking": 1.1, "Driving": 1.6}[movement_speed] * {"Low": 0.8, "Medium": 1.2, "High": 2.0}[congestion])
-    return np.clip(np.random.normal(mean_jitter, 0.15 + 0.05 * mean_jitter), 0.02, 100)
+    cfg = config.DEFAULT_CONFIG
+
+    latency_component = float(latency) / cfg.jitter_latency_divisor
+
+    mobility_factor = {
+        "Static": 0.85,
+        "Walking": 1.15,
+        "Driving": 1.45,
+    }[movement_speed]
+
+    congestion_factor = {
+        "Low": 0.85,
+        "Medium": 1.15,
+        "High": 1.65,
+    }[congestion]
+
+    mean_jitter = max(
+        0.015,
+        latency_component * mobility_factor * congestion_factor,
+    )
+
+    jitter = np.random.lognormal(
+        mean=np.log(mean_jitter),
+        sigma=0.28,
+    )
+
+    return float(np.clip(jitter, 0.005, 6.0))
+
 
 def generate_link_capacity(signal_strength, congestion, movement_speed, network_type, latency, ue_profile):
     max_speeds = {"4G": 150, "5G NSA": 700, "5G SA": 900}
@@ -292,7 +337,7 @@ def generate_dropped_connection(signal_strength, latency, jitter, congestion, ne
     # latency, infrastructure state, handovers, and band-normalized edge-of-cell pressure.
     edge_of_cell_penalty = 0.8 if distance_pressure(distance, band) > 0.85 else 0.0
 
-    linear_combination = (-20.0 + (0.15 * np.clip(-signal_strength - 85, 0, 50)) + (0.02 * max(latency - 150, 0)) + (0.05 * max(jitter - 25, 0)) 
+    linear_combination = (config.DEFAULT_CONFIG.drop_intercept + (0.15 * np.clip(-signal_strength - 85, 0, 50)) + (0.02 * max(latency - 150, 0)) + (0.05 * max(jitter - 25, 0)) 
                           + {"Low": 0, "Medium": 0.8, "High": 1.8}[congestion] + {"4G": 1.0, "5G NSA": 0.5, "5G SA": 0.1}[network_type] 
                           + (2.0 if battery < 15 else 0) + profiles.INFRASTRUCTURE_PROFILES.get(infrastructure_profile, 0) 
                           + (5.0 if anomaly else 0) + {"Light": 0, "Moderate": 0.7, "Heavy": 1.5}[tower_load] 

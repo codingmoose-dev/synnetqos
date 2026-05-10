@@ -1,6 +1,6 @@
 from synnetqos.config import GeneratorConfig
 from synnetqos.generator import generate_full_dataset
-from synnetqos.audits import dataset_integrity_summary, dataset_schema, numerical_range_summary, outlier_report, propagation_model_audit
+from synnetqos.audits import dataset_integrity_summary, dataset_schema, numerical_range_summary, outlier_report, propagation_model_audit, drop_event_summary
 from synnetqos.io import write_csv, save_json, sha256_of_file
 
 def main() -> None:
@@ -34,6 +34,7 @@ def main() -> None:
     write_csv(dataset_schema(df), "results/generator/dataset_schema.csv")
     write_csv(numerical_range_summary(df), "results/generator/numerical_range_summary.csv")
     write_csv(propagation_model_audit(df), "results/generator/propagation_model_audit.csv")
+    write_csv(drop_event_summary(df), "results/generator/drop_event_summary.csv")
     write_csv(outlier_report(df, analysis_features), "results/generator/outlier_report.csv")
     
     # Calculate dataset cryptographic hash

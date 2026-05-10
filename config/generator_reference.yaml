@@ -44,7 +44,7 @@ environment:
   tower_distance_max_km: 2.0
 
 traffic:
-  jitter_latency_divisor: 450.0
+  jitter_latency_divisor: 650.0
   demand_sigma: 0.9
   uplink_capacity_ratio:
     "4G": 0.15
@@ -169,7 +169,7 @@ operator_bands:
     - "n78"
 
 band_gain_db:
-  "N/A": 0
+  "LTE_Anchor": 0
   n28: 3
   n41: -2
   n77: 0
@@ -180,7 +180,7 @@ band_gain_db:
   n260: -14
 
 band_frequencies_ghz:
-  "N/A": 2.6
+  "LTE_Anchor": 2.6
   n28: 0.7
   n41: 2.5
   n77: 3.7
@@ -190,6 +190,17 @@ band_frequencies_ghz:
   n258: 26.0
   n260: 39.0
 
+band_distance_limits_km:
+  "LTE_Anchor": 2.0
+  n28: 3.0
+  n41: 2.0
+  n77: 2.0
+  n78: 2.0
+  n79: 1.5
+  n257: 0.35
+  n258: 0.35
+  n260: 0.30
+  
 infrastructure_profiles:
   Nominal: 0.0
   Moderately_Degraded: 0.8
@@ -339,6 +350,7 @@ outputs:
   schema: "results/generator/dataset_schema.csv"
   numerical_range_summary: "results/generator/numerical_range_summary.csv"
   outlier_report: "results/generator/outlier_report.csv"
+  drop_event_summary: "results/generator/drop_event_summary.csv"
   config_export: "results/generator/generator_config.json"
   monte_carlo_run_metrics: "results/generator/monte_carlo_run_metrics.csv"
   monte_carlo_stability_summary: "results/generator/monte_carlo_stability_summary.csv"
