@@ -2,12 +2,14 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import asdict, dataclass
+import gc
 
 import numpy as np
 import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import (
     average_precision_score,
@@ -29,7 +31,11 @@ RANDOM_STATE = 42
 DEFAULT_SEEDS: tuple[int, ...] = (42, 52, 62)
 
 GROUP_COLUMN = "Session_ID"
-FUTURE_TARGET_COLUMN = "Drop_t_plus_1"
+FUTURE_DROP_TARGET = "Drop_t_plus_1"
+HIGH_LATENCY_TARGET = "High_Latency_200ms"
+DOWNLINK_SHORTFALL_TARGET = "Downlink_Service_Shortfall"
+STREAMING_QOE_TARGET = "Streaming_QoE_Impaired"
+DOWNLINK_EFFICIENCY_COLUMN = "Downlink_Efficiency"
 
 IDENTIFIER_COLUMNS: tuple[str, ...] = (
     "User_ID",
@@ -40,24 +46,26 @@ IDENTIFIER_COLUMNS: tuple[str, ...] = (
     "Tower_ID",
 )
 
-TARGET_COLUMNS: tuple[str, ...] = (
-    "Dropped_Connection",
-    FUTURE_TARGET_COLUMN,
-)
-
-LABEL_OR_AUDIT_COLUMNS: tuple[str, ...] = (
+OBSERVED_QOS_COLUMNS: tuple[str, ...] = (
+    "Download_Speed_Mbps",
+    "Upload_Speed_Mbps",
+    "Latency_ms",
+    "Jitter_ms",
+    "Ping_ms",
+    "Video_Quality",
     "Video_Quality_Label",
-    "Anomalous",
+    "Dropped_Connection",
+    FUTURE_DROP_TARGET,
+    HIGH_LATENCY_TARGET,
+    DOWNLINK_SHORTFALL_TARGET,
+    STREAMING_QOE_TARGET,
+    DOWNLINK_EFFICIENCY_COLUMN,
 )
 
-GENERATOR_INTERNAL_OR_DEMAND_COLUMNS: tuple[str, ...] = (
-    "Offered_Downlink_Mbps",
-    "Offered_Upload_Mbps",
+GENERATOR_INTERNAL_COLUMNS: tuple[str, ...] = (
     "Propagation_Model",
     "Propagation_Scenario",
-    "LOS_State",
     "LOS_Probability",
-    "Carrier_Frequency_GHz",
     "Distance_2D_m",
     "Distance_3D_m",
     "Breakpoint_Distance_m",
@@ -72,10 +80,13 @@ GENERATOR_INTERNAL_OR_DEMAND_COLUMNS: tuple[str, ...] = (
     "Contextual_Penalty_dB",
     "Effective_TX_Power_dBm",
     "Signal_Strength_Unclipped_dBm",
-    "RSRP_Clipped",
 )
 
-CONTEXT_ONLY_FEATURES: tuple[str, ...] = (
+LABEL_OR_AUDIT_COLUMNS: tuple[str, ...] = (
+    "Anomalous",
+)
+
+CONTEXT_FEATURES: tuple[str, ...] = (
     "Hour",
     "Day_of_Week",
     "Is_Weekend",
@@ -85,12 +96,37 @@ CONTEXT_ONLY_FEATURES: tuple[str, ...] = (
     "UE_Profile",
     "UE_Capability_Class",
     "Operator_Profile",
-    "Weather",
+    "Infrastructure_Profile",
+    "Band",
+    "Battery_Level_percent",
+    "Temperature_C",
+    "Connected_Duration_min",
+    "Activity_Factor",
+    "Congestion_Level",
     "Movement_Speed",
     "App_Type",
+    "Weather",
+    "Obstruction_Level",
     "Is_Indoor",
-    "Activity_Factor",
-    "Connected_Duration_min",
+    "Tower_Load",
+    "VoNR_Enabled",
+)
+
+RADIO_CONTEXT_FEATURES: tuple[str, ...] = (
+    *CONTEXT_FEATURES,
+    "Signal_Strength_dBm",
+    "RSRP_Clipped",
+    "Carrier_Frequency_GHz",
+    "LOS_State",
+    "Distance_to_Tower_km",
+    "Interval_Handover_Count",
+    "Cumulative_Handover_Count",
+)
+
+DEMAND_CONTEXT_FEATURES: tuple[str, ...] = (
+    *RADIO_CONTEXT_FEATURES,
+    "Offered_Downlink_Mbps",
+    "Offered_Upload_Mbps",
 )
 
 METRIC_COLUMNS: tuple[str, ...] = (
@@ -104,6 +140,7 @@ METRIC_COLUMNS: tuple[str, ...] = (
     "brier_score",
 )
 
+
 @dataclass(frozen=True)
 class MLTask:
     task_id: str
@@ -112,8 +149,10 @@ class MLTask:
     feature_set: str
     description: str
     interpretation: str
-    exclude_columns: tuple[str, ...] = ()
-    include_columns: tuple[str, ...] | None = None
+    analysis_role: str
+    include_columns: tuple[str, ...]
+    row_filter_column: str | None = None
+    row_filter_value: object | None = None
 
 
 def require_columns(df: pd.DataFrame, required: Sequence[str], dataset_name: str) -> None:
@@ -122,12 +161,21 @@ def require_columns(df: pd.DataFrame, required: Sequence[str], dataset_name: str
         raise KeyError(f"{dataset_name} is missing required columns: {missing}")
 
 
-"""
-Prepare same-timestep and one-step-ahead dropped-connection targets.
-This function creates Drop_t_plus_1 but does not remove the final row of each session. Task-specific selection removes rows only when the selected target is missing.
-"""
-def prepare_drop_prediction_frame(df: pd.DataFrame) -> pd.DataFrame:
-    required = [GROUP_COLUMN, "Connected_Duration_min", "Dropped_Connection"]
+def _available_columns(df: pd.DataFrame, columns: Sequence[str]) -> tuple[str, ...]:
+    return tuple(col for col in columns if col in df.columns)
+
+
+def prepare_ml_benchmark_frame(df: pd.DataFrame) -> pd.DataFrame:
+    required = [
+        GROUP_COLUMN,
+        "Connected_Duration_min",
+        "Dropped_Connection",
+        "Latency_ms",
+        "Download_Speed_Mbps",
+        "Offered_Downlink_Mbps",
+        "App_Type",
+        "Video_Quality",
+    ]
     require_columns(df, required, "SynNetQoS ML benchmark")
 
     out = df.copy()
@@ -140,74 +188,97 @@ def prepare_drop_prediction_frame(df: pd.DataFrame) -> pd.DataFrame:
         out[col] = out[col].fillna(False).astype(int)
 
     out = out.sort_values([GROUP_COLUMN, "Connected_Duration_min"]).copy()
-    out[FUTURE_TARGET_COLUMN] = out.groupby(GROUP_COLUMN)["Dropped_Connection"].shift(-1)
+    out[FUTURE_DROP_TARGET] = out.groupby(GROUP_COLUMN)["Dropped_Connection"].shift(-1)
+
+    offered_downlink = pd.to_numeric(out["Offered_Downlink_Mbps"], errors="coerce").clip(lower=0.05)
+    download_speed = pd.to_numeric(out["Download_Speed_Mbps"], errors="coerce").clip(lower=0.0)
+    out[DOWNLINK_EFFICIENCY_COLUMN] = (download_speed / offered_downlink).clip(0.0, 1.0)
+
+    out[HIGH_LATENCY_TARGET] = (pd.to_numeric(out["Latency_ms"], errors="coerce") >= 200.0).astype(int)
+    out[DOWNLINK_SHORTFALL_TARGET] = (out[DOWNLINK_EFFICIENCY_COLUMN] < 0.50).astype(int)
+
+    streaming_qoe = pd.Series(np.nan, index=out.index, dtype="float")
+    streaming_mask = out["App_Type"].eq("Streaming")
+    streaming_qoe.loc[streaming_mask] = (
+        pd.to_numeric(out.loc[streaming_mask, "Video_Quality"], errors="coerce") <= 3.0
+    ).astype(float)
+    out[STREAMING_QOE_TARGET] = streaming_qoe
 
     return out
 
 
-def default_drop_tasks(df: pd.DataFrame) -> list[MLTask]:
-    common_exclusions = tuple(
-        col
-        for col in (
-            *IDENTIFIER_COLUMNS,
-            *TARGET_COLUMNS,
-            *LABEL_OR_AUDIT_COLUMNS,
-            *GENERATOR_INTERNAL_OR_DEMAND_COLUMNS,
-        )
-        if col in df.columns
-    )
-
-    context_features = tuple(col for col in CONTEXT_ONLY_FEATURES if col in df.columns)
+def default_ml_tasks(df: pd.DataFrame) -> list[MLTask]:
+    context_radio = _available_columns(df, RADIO_CONTEXT_FEATURES)
+    demand_context = _available_columns(df, DEMAND_CONTEXT_FEATURES)
 
     return [
         MLTask(
-            task_id="A_current_drop_full_qos",
+            task_id="A_high_latency_radio_context",
             task_label="A",
-            target="Dropped_Connection",
-            feature_set="full_current_qos",
+            target=HIGH_LATENCY_TARGET,
+            feature_set="radio_context_pre_qos",
             description=(
-                "Same-timestep dropped-connection label recovery from full current "
-                "QoS/QoE variables. This is an upper-bound internal-consistency task, "
-                "not a deployment prediction task."
+                "Predict whether current latency is at least 200 ms using scenario, "
+                "device, load, mobility, and radio-context variables while excluding "
+                "observed QoS outcomes."
             ),
-            interpretation="upper_bound_internal_consistency",
-            exclude_columns=common_exclusions,
+            interpretation="primary_latency_impairment_classification",
+            analysis_role="primary",
+            include_columns=context_radio,
         ),
         MLTask(
-            task_id="B_future_drop_full_current_qos",
+            task_id="B_downlink_shortfall_demand_context",
             task_label="B",
-            target=FUTURE_TARGET_COLUMN,
-            feature_set="full_current_qos_without_current_drop_label",
+            target=DOWNLINK_SHORTFALL_TARGET,
+            feature_set="radio_demand_context_pre_qos",
             description=(
-                "One-step-ahead dropped-connection prediction using current-row "
-                "QoS/QoE variables, while excluding the current and future drop labels."
+                "Predict whether achieved downlink service is below 50% of offered "
+                "downlink demand using pre-outcome demand, scenario, load, mobility, "
+                "and radio-context variables."
             ),
-            interpretation="full_information_future_prediction",
-            exclude_columns=common_exclusions,
+            interpretation="primary_downlink_service_shortfall_classification",
+            analysis_role="primary",
+            include_columns=demand_context,
         ),
         MLTask(
-            task_id="C_future_drop_context_only",
+            task_id="C_streaming_qoe_impairment_context",
             task_label="C",
-            target=FUTURE_TARGET_COLUMN,
-            feature_set="context_only_pre_qos",
+            target=STREAMING_QOE_TARGET,
+            feature_set="streaming_radio_demand_context_pre_qos",
             description=(
-                "Leakage-controlled one-step-ahead dropped-connection prediction using "
-                "only session, scenario, device, application, and temporal context "
-                "variables available before QoS outcomes."
+                "For streaming rows only, predict whether the synthetic video-quality "
+                "score is at most 3.0 using context, load, demand, and radio-context "
+                "variables while excluding video-quality and QoS outcome columns."
             ),
-            interpretation="leakage_controlled_future_prediction",
-            include_columns=context_features,
+            interpretation="primary_streaming_qoe_impairment_classification",
+            analysis_role="primary",
+            include_columns=demand_context,
+            row_filter_column="App_Type",
+            row_filter_value="Streaming",
+        ),
+        MLTask(
+            task_id="D_future_drop_radio_context",
+            task_label="D",
+            target=FUTURE_DROP_TARGET,
+            feature_set="radio_context_pre_drop",
+            description=(
+                "One-step-ahead dropped-connection prediction using scenario, device, "
+                "load, mobility, and radio-context variables while excluding direct "
+                "QoS/QoE outcome columns and target labels."
+            ),
+            interpretation="primary_future_drop_risk_classification",
+            analysis_role="primary",
+            include_columns=context_radio,
         ),
     ]
 
 
 def task_definitions_table(tasks: Sequence[MLTask]) -> pd.DataFrame:
-    rows = []
+    rows: list[dict[str, object]] = []
 
     for task in tasks:
         row = asdict(task)
-        row["exclude_columns"] = "; ".join(task.exclude_columns)
-        row["include_columns"] = "" if task.include_columns is None else "; ".join(task.include_columns)
+        row["include_columns"] = "; ".join(task.include_columns)
         rows.append(row)
 
     return pd.DataFrame(rows)
@@ -219,21 +290,25 @@ def select_task_data(
 ) -> tuple[pd.DataFrame, pd.Series, pd.Series, list[str]]:
     require_columns(df, [GROUP_COLUMN, task.target], f"task {task.task_id}")
 
-    if task.include_columns is not None:
-        feature_columns = [col for col in task.include_columns if col in df.columns]
-    else:
-        excluded = set(task.exclude_columns)
-        feature_columns = [col for col in df.columns if col not in excluded]
-
+    feature_columns = [col for col in task.include_columns if col in df.columns]
     if not feature_columns:
         raise ValueError(f"No usable features remain for task {task.task_id}.")
 
+    if task.row_filter_column is not None:
+        require_columns(df, [task.row_filter_column], f"task {task.task_id}")
+        row_mask = df[task.row_filter_column].eq(task.row_filter_value)
+    else:
+        row_mask = pd.Series(True, index=df.index)
+
     required_columns = feature_columns + [task.target, GROUP_COLUMN]
-    task_df = df.loc[:, required_columns].dropna(subset=[task.target]).copy()
+    task_df = df.loc[row_mask, required_columns].dropna(subset=[task.target]).copy()
 
     X = task_df.loc[:, feature_columns].copy()
     y = task_df[task.target].astype(int)
     groups = task_df[GROUP_COLUMN].astype(str)
+
+    if len(np.unique(y)) < 2:
+        raise ValueError(f"Task {task.task_id} has fewer than two target classes.")
 
     return X, y, groups, feature_columns
 
@@ -245,41 +320,66 @@ def make_group_train_val_test_split(
     seed: int = RANDOM_STATE,
     test_size: float = 0.20,
     validation_size_of_trainval: float = 0.25,
-) -> dict[str, pd.Index]:
-    # Return session-wise 60/20/20 train/validation/test indices.
-    splitter_1 = GroupShuffleSplit(
-        n_splits=1,
-        test_size=test_size,
-        random_state=seed,
-    )
-    trainval_pos, test_pos = next(splitter_1.split(X, y, groups))
+    min_positive_per_split: int = 1,
+    max_attempts: int = 100,
+) -> dict[str, pd.Index | int]:
+    best_split: dict[str, pd.Index | int] | None = None
+    best_min_positive = -1
 
-    X_trainval = X.iloc[trainval_pos]
-    y_trainval = y.iloc[trainval_pos]
-    groups_trainval = groups.iloc[trainval_pos]
+    for attempt in range(max_attempts):
+        split_seed = seed + attempt * 1009
+        splitter_1 = GroupShuffleSplit(
+            n_splits=1,
+            test_size=test_size,
+            random_state=split_seed,
+        )
+        trainval_pos, test_pos = next(splitter_1.split(X, y, groups))
 
-    splitter_2 = GroupShuffleSplit(
-        n_splits=1,
-        test_size=validation_size_of_trainval,
-        random_state=seed,
-    )
-    train_pos_rel, val_pos_rel = next(splitter_2.split(X_trainval, y_trainval, groups_trainval))
+        X_trainval = X.iloc[trainval_pos]
+        groups_trainval = groups.iloc[trainval_pos]
 
-    train_index = X_trainval.iloc[train_pos_rel].index
-    val_index = X_trainval.iloc[val_pos_rel].index
-    test_index = X.iloc[test_pos].index
+        splitter_2 = GroupShuffleSplit(
+            n_splits=1,
+            test_size=validation_size_of_trainval,
+            random_state=split_seed,
+        )
+        train_pos_rel, val_pos_rel = next(splitter_2.split(X_trainval, y.iloc[trainval_pos], groups_trainval))
 
-    _assert_no_group_overlap(
-        groups.loc[train_index],
-        groups.loc[val_index],
-        groups.loc[test_index],
-    )
+        train_index = X_trainval.iloc[train_pos_rel].index
+        val_index = X_trainval.iloc[val_pos_rel].index
+        test_index = X.iloc[test_pos].index
 
-    return {
-        "train": train_index,
-        "validation": val_index,
-        "test": test_index,
-    }
+        _assert_no_group_overlap(
+            groups.loc[train_index],
+            groups.loc[val_index],
+            groups.loc[test_index],
+        )
+
+        positives = [
+            int(y.loc[train_index].sum()),
+            int(y.loc[val_index].sum()),
+            int(y.loc[test_index].sum()),
+        ]
+        min_positive = min(positives)
+
+        candidate = {
+            "train": train_index,
+            "validation": val_index,
+            "test": test_index,
+            "split_random_state": split_seed,
+        }
+
+        if min_positive > best_min_positive:
+            best_split = candidate
+            best_min_positive = min_positive
+
+        if min_positive >= min_positive_per_split:
+            return candidate
+
+    if best_split is None:
+        raise RuntimeError("Unable to create a grouped train/validation/test split.")
+
+    return best_split
 
 
 def _assert_no_group_overlap(
@@ -287,21 +387,16 @@ def _assert_no_group_overlap(
     val_groups: pd.Series,
     test_groups: pd.Series,
 ) -> None:
-    train_set = set(train_groups)
-    val_set = set(val_groups)
-    test_set = set(test_groups)
-
     overlaps = {
-        "train_validation_overlap": len(train_set & val_set),
-        "train_test_overlap": len(train_set & test_set),
-        "validation_test_overlap": len(val_set & test_set),
+        "train_validation_overlap": len(set(train_groups) & set(val_groups)),
+        "train_test_overlap": len(set(train_groups) & set(test_groups)),
+        "validation_test_overlap": len(set(val_groups) & set(test_groups)),
     }
 
     if any(overlaps.values()):
         raise RuntimeError(f"Group leakage detected: {overlaps}")
 
 
-# Replace non-finite numeric values before imputation/scaling.
 def sanitize_numeric_values(X: pd.DataFrame | np.ndarray) -> pd.DataFrame | np.ndarray:
     if isinstance(X, pd.DataFrame):
         return X.replace([np.inf, -np.inf], np.nan)
@@ -309,30 +404,32 @@ def sanitize_numeric_values(X: pd.DataFrame | np.ndarray) -> pd.DataFrame | np.n
     return np.where(np.isfinite(X), X, np.nan)
 
 
-def make_preprocessor(X_train: pd.DataFrame) -> ColumnTransformer:
+def make_preprocessor(X_train: pd.DataFrame, scale_numeric: bool = False) -> ColumnTransformer:
     numeric_features = X_train.select_dtypes(include=[np.number]).columns.tolist()
     categorical_features = [col for col in X_train.columns if col not in numeric_features]
 
     transformers = []
 
     if numeric_features:
+        numeric_steps = [
+            (
+                "sanitize",
+                FunctionTransformer(
+                    sanitize_numeric_values,
+                    validate=False,
+                    feature_names_out="one-to-one",
+                ),
+            ),
+            ("imputer", SimpleImputer(strategy="median")),
+        ]
+
+        if scale_numeric:
+            numeric_steps.append(("scaler", StandardScaler()))
+
         transformers.append(
             (
                 "num",
-                Pipeline(
-                    steps=[
-                        (
-                            "sanitize",
-                            FunctionTransformer(
-                                sanitize_numeric_values,
-                                validate=False,
-                                feature_names_out="one-to-one",
-                            ),
-                        ),
-                        ("imputer", SimpleImputer(strategy="median")),
-                        ("scaler", StandardScaler()),
-                    ]
-                ),
+                Pipeline(steps=numeric_steps),
                 numeric_features,
             )
         )
@@ -363,31 +460,59 @@ def make_preprocessor(X_train: pd.DataFrame) -> ColumnTransformer:
         verbose_feature_names_out=True,
     )
 
-def build_model_specs(seed: int = RANDOM_STATE) -> dict[str, object]:
-    return {
-        "Dummy stratified": DummyClassifier(
-            strategy="stratified",
-            random_state=seed,
-        ),
-        "Random forest": RandomForestClassifier(
-            n_estimators=120,
-            class_weight="balanced",
-            min_samples_leaf=2,
-            n_jobs=-1,
-            random_state=seed,
-        ),
-        "HistGradientBoosting": HistGradientBoostingClassifier(
-            learning_rate=0.05,
-            max_iter=150,
-            max_leaf_nodes=31,
-            l2_regularization=0.1,
-            class_weight="balanced",
-            random_state=seed,
-        ),
+
+def build_model_specs(seed: int = RANDOM_STATE, analysis_role: str = "primary") -> dict[str, dict[str, object]]:
+    specs: dict[str, dict[str, object]] = {
+        "Dummy prior": {
+            "estimator": DummyClassifier(
+                strategy="prior",
+                random_state=seed,
+            ),
+            "scale_numeric": False,
+        },
+        "Decision tree": {
+            "estimator": DecisionTreeClassifier(
+                class_weight="balanced",
+                max_depth=12,
+                min_samples_leaf=20,
+                random_state=seed,
+            ),
+            "scale_numeric": False,
+        },
+        "Random forest": {
+            "estimator": RandomForestClassifier(
+                n_estimators=120,
+                class_weight="balanced",
+                min_samples_leaf=10,
+                n_jobs=-1,
+                random_state=seed,
+            ),
+            "scale_numeric": False,
+        },
+        "HistGradientBoosting": {
+            "estimator": HistGradientBoostingClassifier(
+                learning_rate=0.05,
+                max_iter=150,
+                max_leaf_nodes=31,
+                l2_regularization=0.1,
+                class_weight="balanced",
+                random_state=seed,
+            ),
+            "scale_numeric": False,
+        },
     }
 
+    if analysis_role == "diagnostic":
+        return {
+            name: spec
+            for name, spec in specs.items()
+            if name in {"Dummy prior", "Decision tree", "Random forest"}
+        }
+
+    return specs
+
+
 def positive_class_probability(model: Pipeline, X: pd.DataFrame) -> np.ndarray:
-    # Return positive-class probabilities from probability-capable classifiers.
     if not hasattr(model, "predict_proba"):
         raise TypeError(
             f"{model.__class__.__name__} does not expose predict_proba(). "
@@ -396,6 +521,7 @@ def positive_class_probability(model: Pipeline, X: pd.DataFrame) -> np.ndarray:
 
     prob = model.predict_proba(X)[:, 1]
     return np.clip(prob, 1e-9, 1 - 1e-9)
+
 
 def safe_roc_auc(y_true: pd.Series | np.ndarray, y_prob: np.ndarray) -> float:
     if len(np.unique(y_true)) < 2:
@@ -413,6 +539,9 @@ def safe_average_precision(y_true: pd.Series | np.ndarray, y_prob: np.ndarray) -
 
 def find_best_threshold(y_true: pd.Series, y_prob: np.ndarray) -> tuple[float, float]:
     if len(np.unique(y_true)) < 2:
+        return 0.5, np.nan
+
+    if len(np.unique(y_prob)) < 2:
         return 0.5, np.nan
 
     precision, recall, thresholds = precision_recall_curve(y_true, y_prob)
@@ -455,10 +584,7 @@ def build_leakage_audit(df: pd.DataFrame, tasks: Sequence[MLTask]) -> pd.DataFra
     rows: list[dict[str, str]] = []
 
     for task in tasks:
-        if task.include_columns is not None:
-            included = set(col for col in task.include_columns if col in df.columns)
-        else:
-            included = set(df.columns) - set(task.exclude_columns)
+        included = set(col for col in task.include_columns if col in df.columns)
 
         for column in df.columns:
             if column == task.target:
@@ -467,24 +593,24 @@ def build_leakage_audit(df: pd.DataFrame, tasks: Sequence[MLTask]) -> pd.DataFra
             elif column == GROUP_COLUMN:
                 status = "group_id"
                 reason = "Used only for session-wise splitting; never used as a model feature."
-            elif column in TARGET_COLUMNS:
+            elif column in OBSERVED_QOS_COLUMNS:
                 status = "excluded"
-                reason = "Current/future target label excluded to prevent direct label leakage."
+                reason = "Observed QoS/QoE outcome or derived target excluded from model features."
             elif column in IDENTIFIER_COLUMNS:
                 status = "excluded"
-                reason = "Identifier or location-like field excluded to reduce memorization/spurious leakage."
+                reason = "Identifier or location-like field excluded to reduce memorization risk."
+            elif column in GENERATOR_INTERNAL_COLUMNS:
+                status = "excluded"
+                reason = "Generator-internal or propagation-audit column excluded from benchmark features."
             elif column in LABEL_OR_AUDIT_COLUMNS:
                 status = "excluded"
-                reason = "Label-like or generator-audit field excluded from publication-facing ML features."
-            elif task.include_columns is not None and column not in included:
-                status = "excluded"
-                reason = "Excluded from the conservative context-only feature set."
+                reason = "Label-like or audit field excluded from the benchmark feature set."
             elif column in included:
                 status = "included"
                 reason = "Included in the defined task feature set."
             else:
                 status = "excluded"
-                reason = "Excluded by task configuration."
+                reason = "Excluded from the defined task feature set."
 
             rows.append(
                 {
@@ -492,6 +618,7 @@ def build_leakage_audit(df: pd.DataFrame, tasks: Sequence[MLTask]) -> pd.DataFra
                     "task_label": task.task_label,
                     "target": task.target,
                     "feature_set": task.feature_set,
+                    "analysis_role": task.analysis_role,
                     "column": column,
                     "status": status,
                     "reason": reason,
@@ -514,10 +641,34 @@ def build_feature_set_table(df: pd.DataFrame, tasks: Sequence[MLTask]) -> pd.Dat
                     "task_label": task.task_label,
                     "target": task.target,
                     "feature_set": task.feature_set,
+                    "analysis_role": task.analysis_role,
                     "feature": column,
                     "dtype": str(X[column].dtype),
                 }
             )
+
+    return pd.DataFrame(rows)
+
+
+def build_target_prevalence_table(df: pd.DataFrame, tasks: Sequence[MLTask]) -> pd.DataFrame:
+    rows: list[dict[str, object]] = []
+
+    for task in tasks:
+        _, y, groups, feature_columns = select_task_data(df, task)
+        rows.append(
+            {
+                "task_id": task.task_id,
+                "task_label": task.task_label,
+                "target": task.target,
+                "feature_set": task.feature_set,
+                "analysis_role": task.analysis_role,
+                "n_rows": int(len(y)),
+                "n_groups": int(groups.nunique()),
+                "n_positive": int(y.sum()),
+                "positive_rate": float(y.mean()),
+                "n_raw_features": int(len(feature_columns)),
+            }
+        )
 
     return pd.DataFrame(rows)
 
@@ -542,6 +693,7 @@ def extract_feature_importance(
             columns=[
                 "task_id",
                 "task_label",
+                "analysis_role",
                 "model",
                 "seed",
                 "feature",
@@ -557,6 +709,7 @@ def extract_feature_importance(
         {
             "task_id": task.task_id,
             "task_label": task.task_label,
+            "analysis_role": task.analysis_role,
             "model": model_name,
             "seed": seed,
             "feature": feature_names,
@@ -575,8 +728,8 @@ def run_ml_benchmark(
     seeds: Sequence[int] = DEFAULT_SEEDS,
     model_names: Sequence[str] | None = None,
 ) -> dict[str, pd.DataFrame | list[dict[str, object]]]:
-    df = prepare_drop_prediction_frame(raw_df)
-    tasks = default_drop_tasks(df)
+    df = prepare_ml_benchmark_frame(raw_df)
+    tasks = default_ml_tasks(df)
 
     selected_models = set(model_names) if model_names is not None else None
 
@@ -588,9 +741,16 @@ def run_ml_benchmark(
 
     for task in tasks:
         X, y, groups, feature_columns = select_task_data(df, task)
+        min_positive_per_split = 1 if task.analysis_role == "diagnostic" else 10
 
         for seed in seeds:
-            split = make_group_train_val_test_split(X, y, groups, seed=seed)
+            split = make_group_train_val_test_split(
+                X,
+                y,
+                groups,
+                seed=seed,
+                min_positive_per_split=min_positive_per_split,
+            )
 
             X_train = X.loc[split["train"]]
             X_val = X.loc[split["validation"]]
@@ -608,7 +768,9 @@ def run_ml_benchmark(
                 {
                     "task_id": task.task_id,
                     "task_label": task.task_label,
+                    "analysis_role": task.analysis_role,
                     "seed": seed,
+                    "split_random_state": int(split["split_random_state"]),
                     "split_strategy": "GroupShuffleSplit by Session_ID; 60/20/20 train/validation/test",
                     "n_train": int(len(X_train)),
                     "n_validation": int(len(X_val)),
@@ -616,6 +778,9 @@ def run_ml_benchmark(
                     "n_train_groups": int(train_groups.nunique()),
                     "n_validation_groups": int(val_groups.nunique()),
                     "n_test_groups": int(test_groups.nunique()),
+                    "train_positive_count": int(y_train.sum()),
+                    "validation_positive_count": int(y_val.sum()),
+                    "test_positive_count": int(y_test.sum()),
                     "train_positive_rate": float(y_train.mean()),
                     "validation_positive_rate": float(y_val.mean()),
                     "test_positive_rate": float(y_test.mean()),
@@ -623,19 +788,17 @@ def run_ml_benchmark(
                 }
             )
 
-            models = build_model_specs(seed=seed)
+            models = build_model_specs(seed=seed, analysis_role=task.analysis_role)
 
             if selected_models is not None:
-                models = {
-                    name: model
-                    for name, model in models.items()
-                    if name in selected_models
-                }
+                models = {name: spec for name, spec in models.items() if name in selected_models}
 
-            for model_name, estimator in models.items():
+            for model_name, model_spec in models.items():
+                estimator = model_spec["estimator"]
+                scale_numeric = bool(model_spec["scale_numeric"])
                 pipeline = Pipeline(
                     steps=[
-                        ("preprocess", make_preprocessor(X_train)),
+                        ("preprocess", make_preprocessor(X_train, scale_numeric=scale_numeric)),
                         ("model", estimator),
                     ]
                 )
@@ -654,17 +817,20 @@ def run_ml_benchmark(
                     "target": task.target,
                     "feature_set": task.feature_set,
                     "interpretation": task.interpretation,
+                    "analysis_role": task.analysis_role,
                     "model": model_name,
                     "seed": seed,
+                    "split_random_state": int(split["split_random_state"]),
                     "split_strategy": "group_session_holdout_60_20_20",
                     "validation_best_f1": validation_best_f1,
                     "n_train": int(len(X_train)),
                     "n_validation": int(len(X_val)),
                     "n_test": int(len(X_test)),
                     "n_raw_features": int(len(feature_columns)),
-                    "n_encoded_features": int(
-                        len(pipeline.named_steps["preprocess"].get_feature_names_out())
-                    ),
+                    "n_encoded_features": int(len(pipeline.named_steps["preprocess"].get_feature_names_out())),
+                    "train_positive_count": int(y_train.sum()),
+                    "validation_positive_count": int(y_val.sum()),
+                    "test_positive_count": int(y_test.sum()),
                     "train_positive_rate": float(y_train.mean()),
                     "validation_positive_rate": float(y_val.mean()),
                     "test_positive_rate": float(y_test.mean()),
@@ -676,6 +842,7 @@ def run_ml_benchmark(
                     {
                         "task_id": task.task_id,
                         "task_label": task.task_label,
+                        "analysis_role": task.analysis_role,
                         "model": model_name,
                         "seed": seed,
                         "threshold": metrics["threshold"],
@@ -691,6 +858,7 @@ def run_ml_benchmark(
                         {
                             "task_id": task.task_id,
                             "task_label": task.task_label,
+                            "analysis_role": task.analysis_role,
                             "model": model_name,
                             "seed": seed,
                             "y_true": y_test.to_numpy(),
@@ -708,6 +876,9 @@ def run_ml_benchmark(
                 if not importance.empty:
                     importance_frames.append(importance)
 
+                del pipeline
+                gc.collect()
+
     run_metrics = pd.DataFrame(run_rows)
     summary = summarize_run_metrics(run_metrics)
 
@@ -720,6 +891,7 @@ def run_ml_benchmark(
         "prepared_df": df,
         "task_definitions": task_definitions_table(tasks),
         "feature_sets": build_feature_set_table(df, tasks),
+        "target_prevalence": build_target_prevalence_table(df, tasks),
         "leakage_audit": build_leakage_audit(df, tasks),
         "split_summary": pd.DataFrame(split_rows),
         "run_metrics": run_metrics,
@@ -740,6 +912,7 @@ def summarize_run_metrics(run_metrics: pd.DataFrame) -> pd.DataFrame:
         "target",
         "feature_set",
         "interpretation",
+        "analysis_role",
         "model",
         "split_strategy",
     ]
@@ -762,6 +935,7 @@ def summarize_run_metrics(run_metrics: pd.DataFrame) -> pd.DataFrame:
         .agg(
             n_runs=("seed", "nunique"),
             n_test_mean=("n_test", "mean"),
+            test_positive_count_mean=("test_positive_count", "mean"),
             test_positive_rate_mean=("test_positive_rate", "mean"),
             n_raw_features_mean=("n_raw_features", "mean"),
             n_encoded_features_mean=("n_encoded_features", "mean"),
@@ -771,10 +945,8 @@ def summarize_run_metrics(run_metrics: pd.DataFrame) -> pd.DataFrame:
 
     out = counts.merge(summary, on=group_cols, how="left")
 
-    sort_cols = ["task_label", "average_precision_mean", "f1_mean"]
+    sort_cols = ["analysis_role", "task_label", "average_precision_mean", "f1_mean"]
     available_sort_cols = [col for col in sort_cols if col in out.columns]
+    ascending = [True, True, False, False][: len(available_sort_cols)]
 
-    return out.sort_values(
-        available_sort_cols,
-        ascending=[True, False, False][: len(available_sort_cols)],
-    ).reset_index(drop=True)
+    return out.sort_values(available_sort_cols, ascending=ascending).reset_index(drop=True)

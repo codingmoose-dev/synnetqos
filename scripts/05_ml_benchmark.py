@@ -5,13 +5,15 @@
 # - results/ml_benchmark/ml_benchmark_run_metrics.csv
 # - results/ml_benchmark/ml_task_definitions.csv
 # - results/ml_benchmark/ml_feature_sets.csv
+# - results/ml_benchmark/ml_target_prevalence.csv
 # - results/ml_benchmark/ml_leakage_audit.csv
 # - results/ml_benchmark/ml_split_summary.csv
 # - results/ml_benchmark/ml_confusion_summary.csv
 # - results/ml_benchmark/ml_feature_importance.csv
 # - results/ml_benchmark/ml_reproducibility_metadata.json
 # - figures/ml_benchmark/ml_task_result_bars.pdf
-# - figures/supplementary/ml_precision_recall_curves.pdf
+# - figures/supplementary/ml_streaming_qoe_precision_recall_curves.pdf
+# - figures/supplementary/ml_future_drop_precision_recall_curves.pdf
 
 from __future__ import annotations
 
@@ -55,6 +57,7 @@ def main() -> None:
     write_csv(benchmark["run_metrics"], result_dir / "ml_benchmark_run_metrics.csv")
     write_csv(benchmark["task_definitions"], result_dir / "ml_task_definitions.csv")
     write_csv(benchmark["feature_sets"], result_dir / "ml_feature_sets.csv")
+    write_csv(benchmark["target_prevalence"], result_dir / "ml_target_prevalence.csv")
     write_csv(benchmark["leakage_audit"], result_dir / "ml_leakage_audit.csv")
     write_csv(benchmark["split_summary"], result_dir / "ml_split_summary.csv")
     write_csv(benchmark["confusion_summary"], result_dir / "ml_confusion_summary.csv")
@@ -69,17 +72,27 @@ def main() -> None:
     fig_bars = plot_ml_task_result_bars(
         benchmark["summary"],
         metric="average_precision",
+        analysis_role="primary",
     )
     save_plot(fig_bars, main_figure_dir / "ml_task_result_bars.pdf", dpi=300)
 
-    fig_pr = plot_ml_precision_recall_curves(
+    fig_streaming_pr = plot_ml_precision_recall_curves(
         benchmark["curve_rows"],
-        task_id="C_future_drop_context_only",
-        title="Precision-Recall Curves: Leakage-Controlled Future-Drop Prediction",
+        task_id="C_streaming_qoe_impairment_context",
     )
     save_plot(
-        fig_pr,
-        supplementary_figure_dir / "ml_precision_recall_curves.pdf",
+        fig_streaming_pr,
+        supplementary_figure_dir / "ml_streaming_qoe_precision_recall_curves.pdf",
+        dpi=300,
+    )
+
+    fig_drop_pr = plot_ml_precision_recall_curves(
+        benchmark["curve_rows"],
+        task_id="D_future_drop_radio_context",
+    )
+    save_plot(
+        fig_drop_pr,
+        supplementary_figure_dir / "ml_future_drop_precision_recall_curves.pdf",
         dpi=300,
     )
 
@@ -91,10 +104,28 @@ def main() -> None:
         "seeds": list(DEFAULT_SEEDS),
         "split_strategy": "Session-wise GroupShuffleSplit; 60/20/20 train/validation/test",
         "threshold_strategy": "Threshold selected on validation set by maximum F1; test set used only once for reporting.",
-        "class_imbalance_strategy": "Class-weighted tree-based models where applicable; no SMOTE or row duplication.",
+        "class_imbalance_strategy": "Class-weighted primary models where applicable; no SMOTE or row duplication.",
+        "model_suite": [
+            "Dummy prior",
+            "Decision tree",
+            "Random forest",
+            "HistGradientBoosting",
+        ],
+
+        "primary_tasks": [
+            "high-latency impairment classification",
+            "downlink service shortfall classification",
+            "streaming QoE impairment classification",
+            "one-step-ahead dropped-connection risk classification",
+        ],
         "primary_interpretation": (
             "ML benchmark evaluates internal learnability under leakage-aware "
-            "splitting; it does not prove real-world deployment accuracy."
+            "session-wise splitting. It does not prove real-world deployment accuracy."
+        ),
+        "future_drop_interpretation": (
+            "The future dropped-connection endpoint is a controlled synthetic risk "
+            "benchmark with enriched failure prevalence. It is not an estimate of "
+            "real-world dropped-connection frequency."
         ),
     }
 
@@ -104,6 +135,7 @@ def main() -> None:
     print(f"Results saved to: {result_dir}")
     print(f"Main figures saved to: {main_figure_dir}")
     print(f"Supplementary figures saved to: {supplementary_figure_dir}")
+
 
 if __name__ == "__main__":
     main()
