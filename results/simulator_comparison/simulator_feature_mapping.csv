@@ -1,0 +1,5 @@
+synnetqos_feature,simulator_feature,comparison_kpi,unit,mapping_type,notes
+Download_Speed_Mbps,FlowMonitor throughput,throughput_mbps,Mbps,KPI-level,Summary comparison only; not packet-level equivalence.
+Latency_ms,FlowMonitor mean delay,mean_delay_ms,ms,KPI-level,"Compares mean delay summaries, not full delay traces."
+Jitter_ms,FlowMonitor mean jitter,mean_jitter_ms,ms,KPI-level,Compares mean jitter summaries only.
+Packet loss field if present,Derived from Tx/Rx packet counts,packet_loss_ratio,ratio,Derived KPI-level,Simulator-side diagnostic only unless a comparable SynNetQoS packet-loss field is explicitly present.
