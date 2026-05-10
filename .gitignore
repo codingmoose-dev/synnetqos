@@ -92,4 +92,3 @@ archive/*
 # Local manuscript build folders
 paper/build/
 manuscript/build/
-EOF
