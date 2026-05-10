@@ -1,4 +1,5 @@
-from synnetqos.io import path_exists, read_csv, save_plot
+import pandas as pd
+from synnetqos.io import path_exists, read_csv, save_plot, write_csv
 from synnetqos.plotting import (
     plot_correlation_heatmap,
     plot_distributions,
@@ -52,6 +53,10 @@ def main():
     
     print("Running VoNR statistical t-test...")
     vonr_result = check_vonr_latency_consistency(df)
+    write_csv(
+        pd.DataFrame([vonr_result]),
+        "results/generator/vonr_latency_consistency.csv",
+    )
     fig_vonr = plot_vonr_latency_boxplot(df)
     save_plot(fig_vonr, f"{supplementary_dir}/latency_vonr_boxplot.pdf")
     t_stat = vonr_result["t_stat"]
