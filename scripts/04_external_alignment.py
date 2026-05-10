@@ -52,7 +52,7 @@ def main() -> None:
     syn_df = read_csv(data_path)
     vienna_phone_5g, vienna_phone_lte = read_parquet(vienna_phone_5g_path), read_parquet(vienna_phone_lte_path)
 
-    print("Mapping datasets into the common validation schema...")
+    print("Mapping datasets into the common external-alignment schema...")
     syn_common, vienna_phone_common, campus_common = align_synnetqos(syn_df), align_vienna_phone(vienna_phone_lte, vienna_phone_5g), align_campus_qos(campus_tables)
     syn_campus_common, controlled_5g_audit = build_controlled_5g_synnetqos(syn_df)
 
@@ -145,7 +145,6 @@ def main() -> None:
 
     print("Generating external-alignment figures...")
 
-    # LaTeX caption/title candidate: "RSRP ECDF: SynNetQoS vs Vienna Phone Measurements"
     fig_rsrp = plot_ecdf_by_group(
         syn_common,
         vienna_phone_common,
@@ -158,7 +157,6 @@ def main() -> None:
     )
     save_plot(fig_rsrp, figure_dir / "external_rsrp_ecdf_vienna_phone_matched.pdf", dpi=300)
 
-    # LaTeX caption/title candidate: "Download Throughput ECDF: SynNetQoS vs Vienna Phone Measurements"
     fig_vienna_download = plot_ecdf_by_group(
         syn_common,
         vienna_phone_common,
@@ -171,7 +169,6 @@ def main() -> None:
     )
     save_plot(fig_vienna_download, figure_dir / "external_download_ecdf_vienna_phone_matched.pdf", dpi=300)
 
-    # LaTeX caption/title candidate: "Controlled 5G Download ECDF: SynNetQoS vs Campus QoS"
     fig_campus_download = plot_ecdf(
         syn_campus_common["download_mbps"],
         campus_common["download_mbps"],
@@ -182,7 +179,6 @@ def main() -> None:
     )
     save_plot(fig_campus_download, figure_dir / "external_download_ecdf_syn_vs_campus_controlled.pdf", dpi=300)
 
-    # LaTeX caption/title candidate: "Controlled 5G Jitter ECDF: SynNetQoS vs Campus QoS"
     fig_campus_jitter = plot_ecdf(
         syn_campus_common["jitter_ms"],
         campus_common["jitter_ms"],
@@ -193,7 +189,6 @@ def main() -> None:
     )
     save_plot(fig_campus_jitter, figure_dir / "external_jitter_ecdf_syn_vs_campus_controlled.pdf", dpi=300)
 
-    # LaTeX caption/title candidate: "Binned RSRP-to-Throughput Trend"
     fig_trend = plot_binned_median_trend(trend_table, title="Binned RSRP-to-Throughput Trend", xlabel="RSRP (dBm)", ylabel="Median download throughput (Mbps)", source_col="source")
     save_plot(fig_trend, supplementary_figure_dir / "external_rsrp_to_throughput_trend.pdf", dpi=300)
 

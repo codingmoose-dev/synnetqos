@@ -26,14 +26,14 @@ def first_existing_column(df: pd.DataFrame, candidates: Sequence[str], dataset_n
 def clean_numeric(series: pd.Series) -> pd.Series:
     return pd.to_numeric(series, errors="coerce").replace([np.inf, -np.inf], np.nan).dropna()
 
-# Ensure that an aligned external-validation table uses the common schema.
+# Ensure that an aligned external-comparison table uses the common schema.
 def ensure_common_schema(df: pd.DataFrame) -> pd.DataFrame:
     out = df.copy()
     for col in COMMON_EXTERNAL_COLUMNS:
         if col not in out.columns: out[col] = np.nan
     return out.loc[:, list(COMMON_EXTERNAL_COLUMNS)]
 
-# Map SynNetQoS output columns into the common external-validation schema.
+# Map SynNetQoS output columns into the common external-comparison schema.
 def align_synnetqos(syn_df: pd.DataFrame) -> pd.DataFrame:
     required = ["Network_Type", "Signal_Strength_dBm", "Download_Speed_Mbps", "Upload_Speed_Mbps", "Latency_ms", "Jitter_ms"]
     require_columns(syn_df, required, "SynNetQoS")
@@ -212,12 +212,12 @@ def alignment_interpretation_flags(comparison_df: pd.DataFrame) -> pd.DataFrame:
 
 # Return the external feature mapping table for paper/repo reporting.
 def external_feature_mapping_table() -> pd.DataFrame:
-    return pd.DataFrame([{"synthetic_variable": "Signal_Strength_dBm", "common_variable": "rsrp_dbm", "external_source": "Vienna phone LTE/5G", "external_columns": "rsrp_dbm", "main_use": "main", "notes": "Primary external radio-signal alignment variable."}, {"synthetic_variable": "Download_Speed_Mbps", "common_variable": "download_mbps", "external_source": "Vienna phone LTE/5G; Campus QoS", "external_columns": "dl_throughput_mbps; mbpsactual_downlink", "main_use": "main", "notes": "Primary QoS distribution-alignment variable."}, {"synthetic_variable": "Jitter_ms", "common_variable": "jitter_ms", "external_source": "Campus QoS", "external_columns": "meanjitterms_downlink", "main_use": "main", "notes": "Used only in controlled 5G-like comparison."}, {"synthetic_variable": "Upload_Speed_Mbps", "common_variable": "upload_mbps", "external_source": "Vienna phone LTE/5G; Campus QoS", "external_columns": "ul_throughput_mbps; mbpsactual_uplink", "main_use": "supplementary/table", "notes": "Secondary QoS check; not required as a main figure."}, {"synthetic_variable": "Signal_Strength_dBm", "common_variable": "rsrp_dbm", "external_source": "Vienna scanner LTE/5G", "external_columns": "rsrp_dbm", "main_use": "supplementary", "notes": "Scanner data is RSRP-only and should not be mixed with connected-UE throughput validation."}, {"synthetic_variable": "Packet_Loss", "common_variable": "packet_loss", "external_source": "Campus QoS", "external_columns": "meanloss_downlink; meanloss_uplink", "main_use": "ignored", "notes": "Skip unless SynNetQoS explicitly generates packet-loss variables."}])
+    return pd.DataFrame([{"synthetic_variable": "Signal_Strength_dBm", "common_variable": "rsrp_dbm", "external_source": "Vienna phone LTE/5G", "external_columns": "rsrp_dbm", "main_use": "main", "notes": "Primary external radio-signal alignment variable."}, {"synthetic_variable": "Download_Speed_Mbps", "common_variable": "download_mbps", "external_source": "Vienna phone LTE/5G; Campus QoS", "external_columns": "dl_throughput_mbps; mbpsactual_downlink", "main_use": "main", "notes": "Primary QoS distribution-alignment variable."}, {"synthetic_variable": "Jitter_ms", "common_variable": "jitter_ms", "external_source": "Campus QoS", "external_columns": "meanjitterms_downlink", "main_use": "main", "notes": "Used only in controlled 5G-like comparison."}, {"synthetic_variable": "Upload_Speed_Mbps", "common_variable": "upload_mbps", "external_source": "Vienna phone LTE/5G; Campus QoS", "external_columns": "ul_throughput_mbps; mbpsactual_uplink", "main_use": "supplementary/table", "notes": "Secondary QoS check; not required as a main figure."}, {"synthetic_variable": "Signal_Strength_dBm", "common_variable": "rsrp_dbm", "external_source": "Vienna scanner LTE/5G", "external_columns": "rsrp_dbm", "main_use": "supplementary", "notes": "Scanner data is RSRP-only and should not be mixed with connected-UE throughput comparisons."}, {"synthetic_variable": "Packet_Loss", "common_variable": "packet_loss", "external_source": "Campus QoS", "external_columns": "meanloss_downlink; meanloss_uplink", "main_use": "ignored", "notes": "Skip unless SynNetQoS explicitly generates packet-loss variables."}])
 
 # Return the VoNR latency Welch t-test result without plotting.
 def check_vonr_latency_consistency(df: pd.DataFrame) -> dict[str, float | int]:
     required = ["Network_Type", "App_Type", "VoNR_Enabled", "Latency_ms"]
-    require_columns(df, required, "SynNetQoS VoNR latency validation")
+    require_columns(df, required, "SynNetQoS VoNR latency consistency check")
     subset = df[(df["Network_Type"] == "5G SA") & (df["App_Type"] == "Call")]
     lat_vonr, lat_non_vonr = clean_numeric(subset[subset["VoNR_Enabled"] == True]["Latency_ms"]), clean_numeric(subset[subset["VoNR_Enabled"] == False]["Latency_ms"])
     if len(lat_vonr) == 0 or len(lat_non_vonr) == 0: return {"vonr_enabled_n": int(len(lat_vonr)), "vonr_disabled_n": int(len(lat_non_vonr)), "t_stat": np.nan, "p_value": np.nan}
