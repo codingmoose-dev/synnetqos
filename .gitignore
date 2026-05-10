@@ -1,56 +1,95 @@
-# Python cache
+# macOS and editor files
+.DS_Store
+.AppleDouble
+.LSOverride
+__MACOSX/
+.vscode/
+.idea/
+*.swp
+*.swo
+Thumbs.db
+
+# Python bytecode and caches
 __pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.coverage
+htmlcov/
 
 # Virtual environments
 .venv/
 venv/
 env/
+ENV/
 
-# Build/package artifacts
+# Python packaging and build outputs
 build/
 dist/
 *.egg-info/
-*.egg-info
+.eggs/
+pip-wheel-metadata/
 
-# Jupyter
+# Jupyter checkpoints
 .ipynb_checkpoints/
 
-# OS/editor files
-.DS_Store
-.vscode/
-.idea/
+# Local environment files
+.env
+.env.*
+!.env.example
 
-# Test/cache outputs
-.coverage
-htmlcov/
-
-# Logs
-*.log
-
-# Local config
+# Local project configuration
 config/paths.yaml
 config/local*.yaml
 
-# Raw/intermediate/external datasets should stay local
+# External local tools
+external_tools/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+*.orig
+
+# Raw and intermediate data
 data/raw/
 data/interim/
-data/external/
 
-# Temporary/local result folders only
+# Local external-data scratch area
+data/external/raw_downloads/
+data/external/tmp/
+
+# Temporary result folders
 results/tmp/
 results/debug/
 results/local/
 
-# Temporary/local figure folders only
+# Temporary figure folders
 figures/tmp/
 figures/debug/
 figures/working/
 
-# Keep archive README only; do not push exploratory archived outputs
+# Archive outputs
 archive/*
 !archive/README.md
+
+# LaTeX build outputs
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+
+# Local manuscript build folders
+paper/build/
+manuscript/build/
+EOF
