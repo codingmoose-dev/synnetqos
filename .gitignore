@@ -57,9 +57,8 @@ external_tools/
 data/raw/
 data/interim/
 
-# Local external-data scratch area
-data/external/raw_downloads/
-data/external/tmp/
+# External source datasets and simulator traces
+data/external/
 
 # Temporary result folders
 results/tmp/
