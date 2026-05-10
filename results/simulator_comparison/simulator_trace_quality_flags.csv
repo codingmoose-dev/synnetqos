@@ -1,0 +1,5 @@
+check,observed,expected,status,note
+raw_file_count,60,60,pass,Number of simulator output files listed in the run manifest.
+sim_time,30000ms,30000ms,pass,Simulation duration used for each cttc-nr-demo trace.
+load_bearing_flow_rows,60,60,pass,One load-bearing flow is expected per simulator trace.
+low_rate_flow_rows,120,120,pass,Two low-rate auxiliary flows are expected per cttc-nr-demo trace and are excluded from KPI comparison.

@@ -1,0 +1,10 @@
+source,kpi,n_load_labels,load_labels,median_low,median_medium,median_high,low_to_high_ratio,trend_direction,scope_note
+5G-LENA/ns-3,throughput_mbps,3,low;medium;high,20.479654,102.396541,177.579243,8.671007967224446,increasing,Load-response diagnostic only; this is not a calibration or equivalence score.
+SynNetQoS,throughput_mbps,3,low;medium;high,11.26,77.98,229.07,20.343694493783303,increasing,Load-response diagnostic only; this is not a calibration or equivalence score.
+5G-LENA/ns-3,mean_delay_ms,3,low;medium;high,0.921485,0.896518,5256.4098165,5704.281476638252,mixed,Load-response diagnostic only; this is not a calibration or equivalence score.
+SynNetQoS,mean_delay_ms,3,low;medium;high,64.38,69.05,66.945,1.0398415657036346,mixed,Load-response diagnostic only; this is not a calibration or equivalence score.
+5G-LENA/ns-3,mean_jitter_ms,3,low;medium;high,2.7e-05,0.119998,0.073507,2722.4814814814818,mixed,Load-response diagnostic only; this is not a calibration or equivalence score.
+SynNetQoS,mean_jitter_ms,3,low;medium;high,0.08,0.09,0.09,1.125,mixed,Load-response diagnostic only; this is not a calibration or equivalence score.
+trend_comparison,throughput_mbps,3,low;medium;high,,,,,matched_monotonic,Both sources show the same monotonic load response: SynNetQoS trend=increasing; simulator trend=increasing. Trend comparison is diagnostic and does not imply absolute-value equivalence.
+trend_comparison,mean_delay_ms,3,low;medium;high,,,,,ambiguous,"At least one source has a mixed, flat, or insufficient load response: SynNetQoS trend=mixed; simulator trend=mixed. Trend comparison is diagnostic and does not imply absolute-value equivalence."
+trend_comparison,mean_jitter_ms,3,low;medium;high,,,,,ambiguous,"At least one source has a mixed, flat, or insufficient load response: SynNetQoS trend=mixed; simulator trend=mixed. Trend comparison is diagnostic and does not imply absolute-value equivalence."

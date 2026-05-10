@@ -1,0 +1,5 @@
+load_label,kpi,severity,flag,interpretation
+high,mean_delay_ms,review,large_delay_or_jitter_scale_difference,Delay or jitter medians differ by more than the first-pass review band.
+low,mean_delay_ms,review,large_delay_or_jitter_scale_difference,Delay or jitter medians differ by more than the first-pass review band.
+low,mean_jitter_ms,review,large_delay_or_jitter_scale_difference,Delay or jitter medians differ by more than the first-pass review band.
+medium,mean_delay_ms,review,large_delay_or_jitter_scale_difference,Delay or jitter medians differ by more than the first-pass review band.

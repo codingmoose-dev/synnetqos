@@ -1,0 +1,10 @@
+load_label,kpi,synnetqos_n,simulator_n,synnetqos_median,simulator_median,median_absolute_delta_synnetqos_minus_simulator,median_ratio_synnetqos_over_simulator,median_percent_delta_vs_simulator,comparison_scope
+high,throughput_mbps,2202,20,229.07,177.579243,51.490757,1.2899593225543822,28.995932255438213,KPI-level simulator-trace comparison by offered-load label
+high,mean_delay_ms,2202,20,66.945,5256.4098165,-5189.4648165,0.012735879114649316,-98.72641208853507,KPI-level simulator-trace comparison by offered-load label
+high,mean_jitter_ms,2202,20,0.09,0.073507,0.016492999999999994,1.2243731889479912,22.437318894799123,KPI-level simulator-trace comparison by offered-load label
+low,throughput_mbps,2201,20,11.26,20.479654,-9.219654,0.5498139763494051,-45.01860236505949,KPI-level simulator-trace comparison by offered-load label
+low,mean_delay_ms,2201,20,64.38,0.921485,63.458515,69.8654888576591,6886.54888576591,KPI-level simulator-trace comparison by offered-load label
+low,mean_jitter_ms,2201,20,0.08,2.7e-05,0.079973,2962.962962962963,296196.2962962963,KPI-level simulator-trace comparison by offered-load label
+medium,throughput_mbps,2201,20,77.98,102.396541,-24.416540999999995,0.7615491620952314,-23.845083790476867,KPI-level simulator-trace comparison by offered-load label
+medium,mean_delay_ms,2201,20,69.05,0.896518,68.153482,77.02020483693579,7602.020483693578,KPI-level simulator-trace comparison by offered-load label
+medium,mean_jitter_ms,2201,20,0.09,0.119998,-0.029997999999999997,0.7500125002083368,-24.998749979166316,KPI-level simulator-trace comparison by offered-load label
