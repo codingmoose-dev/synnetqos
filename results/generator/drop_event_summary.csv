@@ -1,0 +1,32 @@
+summary_type,category,rows,positive_count,positive_rate
+overall_current_drop,all_rows,50000,960,0.0192
+overall_future_drop,nonterminal_session_rows,45000,876,0.019467
+by_Network_Type,4G,12390,465,0.03753
+by_Network_Type,5G NSA,19650,379,0.019288
+by_Network_Type,5G SA,17960,116,0.006459
+by_Congestion_Level,High,19204,876,0.045615
+by_Congestion_Level,Low,9122,9,0.000987
+by_Congestion_Level,Medium,21674,75,0.00346
+by_Tower_Load,Heavy,10000,564,0.0564
+by_Tower_Load,Light,25097,202,0.008049
+by_Tower_Load,Moderate,14903,194,0.013018
+by_Infrastructure_Profile,Moderately_Degraded,9800,238,0.024286
+by_Infrastructure_Profile,Nominal,37600,632,0.016809
+by_Infrastructure_Profile,Severely_Degraded,2600,90,0.034615
+by_Band,LTE_Anchor,12390,465,0.03753
+by_Band,n257,670,25,0.037313
+by_Band,n258,3160,139,0.043987
+by_Band,n260,4100,167,0.040732
+by_Band,n28,7420,5,0.000674
+by_Band,n41,2090,7,0.003349
+by_Band,n77,4060,41,0.010099
+by_Band,n78,15460,101,0.006533
+by_Band,n79,650,10,0.015385
+by_Movement_Speed,Driving,1990,103,0.051759
+by_Movement_Speed,Static,25236,272,0.010778
+by_Movement_Speed,Walking,22774,585,0.025687
+by_Obstruction_Level,High,8030,477,0.059402
+by_Obstruction_Level,Low,21350,158,0.0074
+by_Obstruction_Level,Medium,20620,325,0.015761
+by_Is_Indoor,False,32260,306,0.009485
+by_Is_Indoor,True,17740,654,0.036866

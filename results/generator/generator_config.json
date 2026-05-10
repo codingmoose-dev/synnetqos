@@ -27,7 +27,10 @@
     "tower_distance_gamma_shape": 2.0,
     "tower_distance_gamma_scale": 0.35,
     "tower_distance_max_km": 2.0,
-    "jitter_latency_divisor": 450.0,
+    "jitter_latency_divisor": 650.0,
     "demand_sigma": 0.9,
-    "dataset_sha256": "631afbd12bfe36d05730a8680c6963797be0e9368d8adf4472e7e4aaf497dd40"
+    "drop_intercept": -15.0,
+    "drop_rate_min": 0.015,
+    "drop_rate_max": 0.025,
+    "dataset_sha256": "3d900a0b38fbebdfed0f3d94057520b3c5672584fc9861eec7eaf1e04f15dc23"
 }
