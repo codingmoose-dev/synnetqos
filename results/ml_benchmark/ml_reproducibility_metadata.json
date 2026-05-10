@@ -1,6 +1,6 @@
 {
     "dataset_path": "data/synthetic/synnetqos-dataset.csv",
-    "dataset_sha256": "631afbd12bfe36d05730a8680c6963797be0e9368d8adf4472e7e4aaf497dd40",
+    "dataset_sha256": "3d900a0b38fbebdfed0f3d94057520b3c5672584fc9861eec7eaf1e04f15dc23",
     "n_rows": 50000,
     "n_columns": 67,
     "seeds": [
@@ -10,6 +10,19 @@
     ],
     "split_strategy": "Session-wise GroupShuffleSplit; 60/20/20 train/validation/test",
     "threshold_strategy": "Threshold selected on validation set by maximum F1; test set used only once for reporting.",
-    "class_imbalance_strategy": "Class-weighted tree-based models where applicable; no SMOTE or row duplication.",
-    "primary_interpretation": "ML benchmark evaluates internal learnability under leakage-aware splitting; it does not prove real-world deployment accuracy."
+    "class_imbalance_strategy": "Class-weighted primary models where applicable; no SMOTE or row duplication.",
+    "model_suite": [
+        "Dummy prior",
+        "Decision tree",
+        "Random forest",
+        "HistGradientBoosting"
+    ],
+    "primary_tasks": [
+        "high-latency impairment classification",
+        "downlink service shortfall classification",
+        "streaming QoE impairment classification",
+        "one-step-ahead dropped-connection risk classification"
+    ],
+    "primary_interpretation": "ML benchmark evaluates internal learnability under leakage-aware session-wise splitting. It does not prove real-world deployment accuracy.",
+    "future_drop_interpretation": "The future dropped-connection endpoint is a controlled synthetic risk benchmark with enriched failure prevalence. It is not an estimate of real-world dropped-connection frequency."
 }

@@ -1,0 +1,5 @@
+task_id,task_label,target,feature_set,analysis_role,n_rows,n_groups,n_positive,positive_rate,n_raw_features
+A_high_latency_radio_context,A,High_Latency_200ms,radio_context_pre_qos,primary,50000,5000,9245,0.1849,30
+B_downlink_shortfall_demand_context,B,Downlink_Service_Shortfall,radio_demand_context_pre_qos,primary,50000,5000,23372,0.46744,32
+C_streaming_qoe_impairment_context,C,Streaming_QoE_Impaired,streaming_radio_demand_context_pre_qos,primary,12626,4740,5859,0.4640424520830033,32
+D_future_drop_radio_context,D,Drop_t_plus_1,radio_context_pre_drop,primary,45000,5000,876,0.019466666666666667,30
