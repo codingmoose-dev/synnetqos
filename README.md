@@ -2,7 +2,7 @@
 
 **SynNetQoS: A Transparent Simulation-Based Synthetic 4G/5G Dataset Generator for QoS and QoE Modeling**
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20115411.svg)](https://doi.org/10.5281/zenodo.20115411)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20120196.svg)](https://doi.org/10.5281/zenodo.20120196)
 
 SynNetQoS is a transparent simulation-based synthetic 4G/5G QoS/QoE data-generation framework with external-alignment checks, leakage-aware machine-learning benchmarks, and a controlled KPI-level 5G-LENA/ns-3 simulator-reference comparison.
 
@@ -290,7 +290,7 @@ The current repository does not claim:
 
 If you use this software, synthetic dataset, generated result summaries, figures, tables, or CSV files, please cite the archived release:
 
-Mohammed Mostafa, Tanvir Alam Tanim, Mst. Asmaul Husna Mayad, Faiza Binte Zaman, & Mohaimen-Bin-Noor. (2026). *SynNetQoS: A Transparent Simulation-Based Synthetic 4G/5G Dataset Generator for QoS and QoE Modeling* (v0.1.0). Zenodo. https://doi.org/10.5281/zenodo.20115411
+Mohammed Mostafa, Tanvir Alam Tanim, Mst. Asmaul Husna Mayad, Faiza Binte Zaman, & Mohaimen-Bin-Noor. (2026). *SynNetQoS: A Transparent Simulation-Based Synthetic 4G/5G Dataset Generator for QoS and QoE Modeling* (v0.1.0). Zenodo. https://doi.org/10.5281/zenodo.20120196
 
 ## License
 

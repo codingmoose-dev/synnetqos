@@ -16,7 +16,7 @@ authors = [
 
 [project.urls]
 Repository = "https://github.com/codingmoose-dev/synnetqos"
-DOI = "https://doi.org/10.5281/zenodo.20115411"
+DOI = "https://doi.org/10.5281/zenodo.20120196"
 
 [tool.setuptools.packages.find]
 where = ["src"]
