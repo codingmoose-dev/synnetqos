@@ -1,25 +1,30 @@
 cff-version: 1.2.0
-title: "SynNetQoS: Transparent Synthetic QoS/QoE Dataset Generation and Benchmarking Workflow"
-message: "If you use this software, dataset, generated results, or figures, please cite the archived release and associated manuscript."
+title: "SynNetQoS: A Transparent Simulation-Based Synthetic 4G/5G Dataset Generator for QoS and QoE Modeling"
+message: "If you use this software, synthetic dataset, generated result summaries, figures, tables, or CSV files, please cite the archived release."
 type: software
+
 authors:
   - family-names: "Mostafa"
     given-names: "Mohammed"
     orcid: "https://orcid.org/0009-0009-2690-2057"
+
   - family-names: "Tanim"
     given-names: "Tanvir Alam"
     orcid: "https://orcid.org/0009-0003-7948-8810"
+
   - family-names: "Mayad"
     given-names: "Mst. Asmaul Husna"
     orcid: "https://orcid.org/0009-0002-4253-5049"
+
   - family-names: "Zaman"
     given-names: "Faiza Binte"
     orcid: "https://orcid.org/0009-0006-6010-3724"
-  - family-names: "Mohaimen-Bin-Noor"
-    given-names: ""
+
+  - name: "Mohaimen-Bin-Noor"
     orcid: "https://orcid.org/0009-0008-6266-6365"
-version: "1.0.0"
+
+version: "0.1.0"
 date-released: "2026-05-11"
 repository-code: "https://github.com/codingmoose-dev/synnetqos"
-doi: "ADD-ZENODO-DOI-HERE"
+doi: "10.5281/zenodo.20115411"
 license: "Apache-2.0"

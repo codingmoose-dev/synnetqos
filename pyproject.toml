@@ -1,8 +1,22 @@
 [project]
-name = "synnetqos"
+name = "SynNetQos"
 version = "0.1.0"
-description = "Transparent synthetic 4G/5G QoS/QoE data generator and benchmark suite"
+description = "Transparent simulation-based synthetic 4G/5G dataset generator for QoS and QoE modeling"
 requires-python = ">=3.10"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+
+authors = [
+  { name = "Mohammed Mostafa", email = "22-47170-1@student.aiub.edu" },
+  { name = "Tanvir Alam Tanim", email = "22-46534-1@student.aiub.edu" },
+  { name = "Mst. Asmaul Husna Mayad", email = "22-47256-1@student.aiub.edu" },
+  { name = "Faiza Binte Zaman", email = "22-46413-1@student.aiub.edu" },
+  { name = "Mohaimen-Bin-Noor", email = "mohaimen.niloy@aiub.edu" }
+]
+
+[project.urls]
+Repository = "https://github.com/codingmoose-dev/synnetqos"
+DOI = "https://doi.org/10.5281/zenodo.20115411"
 
 [tool.setuptools.packages.find]
 where = ["src"]

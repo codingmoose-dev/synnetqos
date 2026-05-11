@@ -1,9 +1,10 @@
-SynNetQoS
+SynNetQoS: A Transparent Simulation-Based Synthetic 4G/5G Dataset Generator for QoS and QoE Modeling
+
 Copyright 2026 SynNetQoS authors
 
 This product includes software developed for the SynNetQoS research project.
 
-If you use, modify, redistribute, or build upon this software, dataset, generated results, or figures in academic work, please cite the associated manuscript and archived release.
+If you use, modify, redistribute, or build upon this software, synthetic dataset, generated result summaries, figures, tables, or CSV files in academic work, please cite the archived release.
 
 Authors:
 Mohammed Mostafa
@@ -16,4 +17,4 @@ Project repository:
 https://github.com/codingmoose-dev/synnetqos
 
 Archived release DOI:
-ADD-ZENODO-DOI-HERE
+https://doi.org/10.5281/zenodo.20115411
