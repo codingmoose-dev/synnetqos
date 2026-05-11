@@ -6,7 +6,8 @@ The figures are organized by their role in the project:
 
 - `external_alignment/` contains the main external-comparison figures.
 - `ml_benchmark/` contains the main machine-learning benchmark figure.
-- `supplementary/` contains additional audit, stability, external-diagnostic, and secondary benchmark figures.
+- `simulator_comparison/` contains the main simulator-reference throughput figure.
+- `supplementary/` contains additional audit, stability, external-diagnostic, simulator-diagnostic, and secondary benchmark figures.
 
 ## `external_alignment/`
 
@@ -17,19 +18,27 @@ This folder contains the main external-alignment figures comparing selected SynN
 - `external_download_ecdf_syn_vs_campus_controlled.pdf` compares download throughput between the controlled SynNetQoS 5G subset and Campus QoS measurements.
 - `external_jitter_ecdf_syn_vs_campus_controlled.pdf` compares jitter between the controlled SynNetQoS 5G subset and Campus QoS measurements.
 
-These figures summarize external alignment for selected radio and QoS/QoE variables.
+These figures summarize external alignment for selected radio and QoS/QoE variables. They should be described as selected distributional comparisons, not as full empirical calibration.
 
 ## `ml_benchmark/`
 
 This folder contains the main machine-learning benchmark figure.
 
-- `ml_task_result_bars.pdf` summarizes average precision for the benchmark tasks and models.
+- `ml_task_result_bars.pdf` summarizes benchmark performance across tasks and models.
 
-The benchmark figure compares performance across the upper-bound same-timestep task, the one-step-ahead full-feature task, and the leakage-controlled context-only task.
+The benchmark figure compares performance across the primary leakage-aware tasks: high-latency impairment classification, downlink service shortfall classification, streaming-QoE impairment classification, and one-step-ahead dropped-connection risk classification.
+
+## `simulator_comparison/`
+
+This folder contains the main simulator-reference figure from the controlled KPI-level 5G-LENA/ns-3 comparison.
+
+- `simulator_throughput_comparison.pdf` compares throughput behavior between SynNetQoS and selected 5G-LENA/ns-3 traces across offered-load categories.
+
+This figure is the most suitable simulator-comparison figure for main-paper use because throughput is the clearest cross-source KPI in the current branch. It should be described as controlled KPI-level simulator-reference evidence, not as validation, calibration, or packet-level equivalence.
 
 ## `supplementary/`
 
-This folder contains additional figures generated during dataset auditing, stability analysis, external-alignment diagnostics, and machine-learning benchmark review.
+This folder contains additional figures generated during dataset auditing, stability analysis, external-alignment diagnostics, simulator-comparison diagnostics, and machine-learning benchmark review.
 
 - `correlation_heatmap.pdf` shows correlations among selected synthetic QoS/QoE variables.
 - `dataset_coverage_heatmap.pdf` summarizes coverage across network type and movement-speed combinations.
@@ -38,6 +47,8 @@ This folder contains additional figures generated during dataset auditing, stabi
 - `latency_vonr_boxplot.pdf` compares latency distributions for 5G SA call sessions with VoNR disabled and enabled.
 - `monte_carlo_stability.pdf` summarizes relative variation in selected generator outputs across repeated generator runs.
 - `external_rsrp_to_throughput_trend.pdf` summarizes the binned relationship between RSRP and median download throughput for SynNetQoS and Vienna phone measurements.
-- `ml_precision_recall_curves.pdf` reports precision-recall curves for the leakage-controlled context-only prediction task.
+- `ml_future_drop_precision_recall_curves.pdf` reports precision-recall behavior for the future dropped-connection benchmark task.
+- `ml_streaming_qoe_precision_recall_curves.pdf` reports precision-recall behavior for the streaming-QoE benchmark task.
+- `simulator_delay_jitter_comparison.pdf` compares delay and jitter behavior between SynNetQoS and selected 5G-LENA/ns-3 traces.
 
-These figures document the dataset checks, stability analysis, external-alignment diagnostics, and secondary benchmark behaviour used in the SynNetQoS workflow.
+The supplementary figures document supporting checks and secondary behavior used in the SynNetQoS workflow. The delay/jitter simulator figure is kept supplementary because delay and jitter have different measurement semantics in a session-level synthetic generator and packet-level simulator traces.
