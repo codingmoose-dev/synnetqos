@@ -50,6 +50,9 @@ pytest
 ## Repository layout
 ```
 synnetqos
+├─ CITATION.cff
+├─ LICENSE
+├─ NOTICE
 ├─ README.md
 ├─ config
 │  ├─ generator_reference.yaml
