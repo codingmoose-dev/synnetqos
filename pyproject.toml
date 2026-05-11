@@ -1,16 +1,8 @@
 [project]
 name = "synnetqos"
-version = "1.0.0"
+version = "0.1.0"
 description = "Transparent synthetic 4G/5G QoS/QoE data generator and benchmark suite"
-readme = "README.md"
 requires-python = ">=3.10"
-license = { file = "LICENSE" }
-authors = [
-  { name = "SynNetQoS authors" }
-]
-
-[project.urls]
-Repository = "https://github.com/codingmoose-dev/synnetqos"
 
 [tool.setuptools.packages.find]
 where = ["src"]
