@@ -1,5 +1,5 @@
 [project]
-name = "SynNetQos"
+name = "synnetqos"
 version = "0.1.0"
 description = "Transparent simulation-based synthetic 4G/5G dataset generator for QoS and QoE modeling"
 requires-python = ">=3.10"
@@ -16,7 +16,7 @@ authors = [
 
 [project.urls]
 Repository = "https://github.com/codingmoose-dev/synnetqos"
-DOI = "https://doi.org/10.5281/zenodo.20120196"
+DOI = "https://doi.org/10.5281/zenodo.20172326"
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -1,0 +1,38 @@
+Creative Commons Attribution 4.0 International License
+
+Copyright 2026 SynNetQoS authors
+
+The generated SynNetQoS synthetic dataset, generated result summaries, figures,
+tables, and CSV outputs in this repository are licensed under the Creative
+Commons Attribution 4.0 International License (CC BY 4.0), unless otherwise
+stated.
+
+This includes, but is not limited to:
+
+- data/synthetic/
+- results/
+- figures/
+- generated tables and derived CSV summaries
+
+You are free to share and adapt these materials for any purpose, including
+research and commercial use, provided that appropriate credit is given.
+
+Suggested attribution:
+
+Mohammed Mostafa, Tanvir Alam Tanim, Mst. Asmaul Husna Mayad,
+Faiza Binte Zaman, & Mohaimen-Bin-Noor. (2026).
+SynNetQoS: A Transparent Simulation-Based Synthetic 4G/5G Dataset Generator
+for QoS and QoE Modeling (v0.1.0). Zenodo.
+https://doi.org/10.5281/zenodo.20172326
+
+License text:
+https://creativecommons.org/licenses/by/4.0/
+
+Important note:
+
+External reference datasets stored or used under data/external/ are not created
+by SynNetQoS and are not relicensed by this file. Those datasets remain subject
+to their original licenses, terms of use, and citation requirements.
+
+The source code of this repository is licensed separately under the Apache
+License 2.0, as described in the LICENSE file.

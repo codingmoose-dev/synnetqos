@@ -15,13 +15,19 @@ external_sources:
     phone_5g: "data/external/vienna/phone/phone_data_5g.parquet"
     scanner_lte: "data/external/vienna/scanner/scanner_data_lte.parquet"
     scanner_5g: "data/external/vienna/scanner/scanner_data_5g.parquet"
+  ns3_lena:
+    raw_dir: "data/external/ns3_lena/raw"
+    processed_dir: "data/external/ns3_lena/processed"
+    run_manifest: "data/external/ns3_lena/raw/ns3_lena_run_manifest.csv"
 
 results:
   generator: "results/generator"
   external_alignment: "results/external_alignment"
   ml_benchmark: "results/ml_benchmark"
+  simulator_comparison: "results/simulator_comparison"
 
 figures:
   external_alignment: "figures/external_alignment"
   ml_benchmark: "figures/ml_benchmark"
   supplementary: "figures/supplementary"
+  simulator_comparison: "figures/simulator_comparison"
