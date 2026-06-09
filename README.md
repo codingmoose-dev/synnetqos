@@ -21,6 +21,16 @@ The external-alignment workflow is a post-generation distributional check agains
 
 The simulator-comparison workflow is a controlled KPI-level comparison against selected 5G-LENA/ns-3 traces. It is intended as simulator-reference evidence for selected aggregate trends, not as packet-level equivalence, validation, or calibration.
 
+## Citation
+
+If you use this software, synthetic dataset, generated result summaries, figures, tables, or CSV files, please cite the archived Zenodo release:
+
+Mohammed Mostafa, Tanvir Alam Tanim, Mst. Asmaul Husna Mayad, Faiza Binte Zaman, & Mohaimen-Bin-Noor. (2026). *SynNetQoS: A Transparent Simulation-Based Synthetic 4G/5G Dataset Generator for QoS and QoE Modeling* (v0.1.0). Zenodo. https://doi.org/10.5281/zenodo.20172326
+
+A manuscript preprint describing SynNetQoS is available at SSRN and may be cited as:
+
+Mostafa, Mohammed and Tanim, Tanvir Alam and Mayad, Mst. Asmaul Husna and Binte Zaman, Faiza and Noor, Mohaimen-Bin, SynNetQoS: A Transparent Simulation-Based Synthetic 4G/5G Dataset Generator for QoS and QoE Modeling. Available at SSRN: https://ssrn.com/abstract=6880457 or http://dx.doi.org/10.2139/ssrn.6880457
+
 ## Quick setup
 
 ```bash
@@ -286,12 +296,6 @@ The current repository does not claim:
 - packet-level equivalence with 5G-LENA/ns-3;
 - real-world predictive deployment performance;
 - empirical ranking of real cities, operators, devices, or network deployments.
-
-## Citation
-
-If you use this software, synthetic dataset, generated result summaries, figures, tables, or CSV files, please cite the archived release:
-
-Mohammed Mostafa, Tanvir Alam Tanim, Mst. Asmaul Husna Mayad, Faiza Binte Zaman, & Mohaimen-Bin-Noor. (2026). *SynNetQoS: A Transparent Simulation-Based Synthetic 4G/5G Dataset Generator for QoS and QoE Modeling* (v0.1.0). Zenodo. https://doi.org/10.5281/zenodo.20172326
 
 ## License
 
